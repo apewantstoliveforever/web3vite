@@ -22,6 +22,7 @@ const Test: React.FC = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [currentRoom, setCurrentRoom] = useState<string>("room1");
   const [image, setImage] = useState<File | null>(null); // For handling image uploads
+  const [avatar, setAvatar] = useState<string | null>(null); // For handling avatar uploads
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<any>(null);
@@ -44,10 +45,15 @@ const Test: React.FC = () => {
       user.auth(storedUsername, storedPassword);
     }
 
+
     const aliasRef = user.get("alias");
     aliasRef.on((alias: string) => {
       setUsername(alias);
     });
+
+    //get user avatar
+    const profileRef = user.get("profile");
+    profileRef.get("avatar").then((avatar: string) => setAvatar(avatar || "https://github.com/shadcn.png"));
 
     db.on("auth", async () => {
       const alias = await user.get("alias");
@@ -164,7 +170,17 @@ const Test: React.FC = () => {
     });
   };
 
-  
+  const handleAvatarUpload = () => {
+    if (avatar) {
+      convertToBase64(avatar).then((base64Avatar) => {
+        // Update user's profile with the new avatar URL
+        user.get("profile").put({ avatar: base64Avatar });
+        setAvatar(null); // Clear the selected avatar
+      });
+    } else {
+      console.error("Avatar is not set");
+    }
+  };
 
   useEffect(() => {
     // Scroll to the bottom of the messages container when messages update
@@ -180,9 +196,31 @@ const Test: React.FC = () => {
     <div>
       {logined ? (
         <div>
-          <h2>Welcome {username}</h2>
+          <div>
+            <h2>Welcome {username}</h2>
+            <Avatar>
+              <AvatarImage src={avatar || "https://github.com/shadcn.png"} />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          </div>
           <Button onClick={handleLogout}>Logout</Button>
           <Button onClick={ClearAllChat}>Clear All Chat</Button>
+
+          {/* Avatar upload */}
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => e.target.files && setAvatar(e.target.files[0])}
+            />
+            <Button onClick={handleAvatarUpload}>Upload Avatar</Button>
+          </div>
+
+          {/* Display Avatar */}
+          <Avatar>
+            <AvatarImage src={avatar || "https://github.com/shadcn.png"} />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
 
           {/* Room selection */}
           <div>
