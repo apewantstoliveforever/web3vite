@@ -11,6 +11,8 @@ const Register: React.FC<{ onRegister: () => void }> = ({ onRegister }) => {
     try {
       await user.create(userName, userPassword);
       onRegister(); // Notify parent component of successful registration
+      localStorage.setItem("username", userName);
+      localStorage.setItem("password", userPassword);
     } catch (error) {
       console.error('Registration failed:', error);
     }
