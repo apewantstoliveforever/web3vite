@@ -4,12 +4,15 @@ import Login from "@/components/test-page-component/login-component";
 import Register from "@/components/test-page-component/register-component";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import imageCompression from "browser-image-compression";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Message {
   id: string;
   who: string;
   what: string;
-  timestamp: number; // Unix timestamp in milliseconds
+  timestamp: number;
+  image?: string; // Optional image field in base64
 }
 
 const Test: React.FC = () => {
@@ -17,10 +20,11 @@ const Test: React.FC = () => {
   const [text, setText] = useState<string>("");
   const [logined, setLogined] = useState<boolean>(false);
   const [username, setUsername] = useState<string | null>(null);
-  const [currentRoom, setCurrentRoom] = useState<string>("room1"); // Default room
+  const [currentRoom, setCurrentRoom] = useState<string>("room1");
+  const [image, setImage] = useState<File | null>(null); // For handling image uploads
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesRef = useRef<any>(null); // For keeping track of the current message reference
+  const messagesRef = useRef<any>(null);
 
   const handleLogin = () => {
     setLogined(true);
@@ -64,7 +68,7 @@ const Test: React.FC = () => {
     // Handle message subscription for the current room
     if (messagesRef.current) {
       console.log("Unsubscribing from messages in room", currentRoom);
-      messagesRef.current.map().off(); // Unsubscribe from previous room
+      messagesRef.current.map().off();
     }
 
     console.log("Subscribing to messages in room", currentRoom);
@@ -79,11 +83,8 @@ const Test: React.FC = () => {
       }
     });
 
-    // Cleanup on room change
     return () => {
       if (messagesRef.current) {
-        // messagesRef.current.map().off();
-        // console.log('sss', messagesRef.current.map())
         db.get(`rooms/${currentRoom}/messages`).off();
       }
     };
@@ -109,16 +110,61 @@ const Test: React.FC = () => {
 
   const handleSendMessage = () => {
     if (username) {
-      db.get(`rooms/${currentRoom}/messages`).set({
+      const message: Message = {
         who: username,
         what: text,
-        timestamp: Date.now(), // Current time in milliseconds
-      });
-      setText(""); // Clear the input after sending
+        timestamp: Date.now(),
+        image: null, // Initialize image field as null
+      };
+
+      if (image) {
+        compressImage(image).then((compressedImage) => {
+          convertToBase64(compressedImage).then((base64Image) => {
+            message.image = base64Image;
+
+            db.get(`rooms/${currentRoom}/messages`).set(message);
+            setText("");
+            setImage(null); // Clear the selected image
+          });
+        });
+      } else {
+        db.get(`rooms/${currentRoom}/messages`).set(message);
+        setText(""); // Clear the input after sending
+      }
     } else {
       console.error("Username is not set");
     }
   };
+
+  const compressImage = async (image: File) => {
+    const options = {
+      maxSizeMB: 0.5,
+      maxWidthOrHeight: 1024,
+      useWebWorker: true,
+    };
+
+    try {
+      return await imageCompression(image, options);
+    } catch (error) {
+      console.error("Error compressing image:", error);
+      return image; // Return the original image in case of error
+    }
+  };
+
+  const convertToBase64 = (image: File) => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      reader.readAsDataURL(image);
+    });
+  };
+
+  
 
   useEffect(() => {
     // Scroll to the bottom of the messages container when messages update
@@ -127,7 +173,7 @@ const Test: React.FC = () => {
 
   const formatTimestamp = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString(); // Formats the time as HH:MM:SS
+    return date.toLocaleTimeString();
   };
 
   return (
@@ -143,22 +189,28 @@ const Test: React.FC = () => {
             <Button
               onClick={() => {
                 if (currentRoom !== "room1") {
-                  setMessages([]); // Clear messages for the old room
+                  setMessages([]);
                   setCurrentRoom("room1");
                 }
               }}
-              style={{ backgroundColor: currentRoom === "room1" ? "lightgray" : "transparent" }}
+              style={{
+                backgroundColor:
+                  currentRoom === "room1" ? "lightgray" : "transparent",
+              }}
             >
               Room 1
             </Button>
             <Button
               onClick={() => {
                 if (currentRoom !== "room2") {
-                  setMessages([]); // Clear messages for the old room
+                  setMessages([]);
                   setCurrentRoom("room2");
                 }
               }}
-              style={{ backgroundColor: currentRoom === "room2" ? "lightgray" : "transparent" }}
+              style={{
+                backgroundColor:
+                  currentRoom === "room2" ? "lightgray" : "transparent",
+              }}
             >
               Room 2
             </Button>
@@ -168,7 +220,18 @@ const Test: React.FC = () => {
           <div style={{ maxHeight: "400px", overflowY: "auto" }}>
             {messages.map((message) => (
               <div key={message.id}>
+                <Avatar>
+                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
                 <strong>{message.who}:</strong> {message.what}{" "}
+                {message.image && (
+                  <img
+                    src={message.image}
+                    alt="sent"
+                    style={{ maxWidth: "400px", maxHeight: "400px" }}
+                  />
+                )}
                 <span style={{ fontSize: "small", color: "gray" }}>
                   {formatTimestamp(message.timestamp)}
                 </span>
@@ -178,9 +241,11 @@ const Test: React.FC = () => {
           </div>
 
           {/* Input and send button */}
-          <Input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
+          <Input value={text} onChange={(e) => setText(e.target.value)} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => e.target.files && setImage(e.target.files[0])}
           />
           <Button onClick={handleSendMessage}>Send</Button>
         </div>
