@@ -26,7 +26,7 @@ const iteam2 = [
     ),
     name: "Hoài Lâm 1",
     link: "/test",
-    icon2: <DropdownMenuCheckboxes />
+    icon2: <DropdownMenuCheckboxes name={"Hoài Lâm 1"} name2={"Vào Ngay"} name4={"Thoát Group"} name3={"Thêm thành viên"} link="/test"/>
   },
   {
     icon: (
@@ -38,7 +38,7 @@ const iteam2 = [
     ),
     name: "Hoài Lâm 2",
     link: "/test",
-    icon2: <DropdownMenuCheckboxes />
+    icon2: <DropdownMenuCheckboxes name={"Hoài Lâm 2"} name2={"Vào Ngay"} name4={"Thoát Group"} name3={"Thêm thành viên"} link="/test" />
   },
   {
     icon: (
@@ -50,7 +50,7 @@ const iteam2 = [
     ),
     name: "Hoài Lâm 3",
     link: "/test",
-    icon2: <DropdownMenuCheckboxes /> 
+    icon2: <DropdownMenuCheckboxes name={"Hoài Lâm 3"} name2={"Vào Ngay"} name4={"Thoát Group"} name3={"Thêm thành viên"} link="/test" /> 
   }
 ];
 

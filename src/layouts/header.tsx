@@ -1,6 +1,8 @@
 //header
 
 import React from 'react';
+import DropdownMenuCheckboxes2 from '../components/DropdownMenu/DropdownMenu2'
+
 import imgLogo from '../assets/snapedit_1722346985126.png'
 const Header = () => {
 
@@ -22,8 +24,7 @@ const Header = () => {
           </li>
 
           <li className='text-4xl'>
-          <h2>Welcome: Hoài Lâm</h2>
-            
+            <DropdownMenuCheckboxes2 name={"hoailam03999@gmail.com"} name2={"Trực tuyến"} name3={"Cái đặt trạng thái tùy chỉnh"} name4={"Đăng xuất"} />
           </li>
         </ul>
       </nav>
