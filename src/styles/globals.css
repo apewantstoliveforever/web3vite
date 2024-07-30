@@ -97,3 +97,15 @@
   border-radius: 9999px;
 }
 
+
+#root {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 100% !important;
+  padding: 0;
+}
+
+.ant-menu-item {
+  height: 75px !important;
+}
+
