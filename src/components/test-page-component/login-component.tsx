@@ -9,11 +9,14 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
 
   const handleLogin = async () => {
     try {
-      await user.auth(userName, userPassword);
-      onLogin(); // Notify parent component of successful login
-      //save user to local storage
-      localStorage.setItem("username", userName);
-      localStorage.setItem("password", userPassword);
+      console.log("Logging in...", userName, userPassword);
+      await user.auth(userName, userPassword, () => {
+        console.log("Logged in:", userName + " " + userPassword);
+        //save user to local storage
+        localStorage.setItem("username", userName);
+        localStorage.setItem("password", userPassword);
+      });
+      // onLogin(); // Notify parent component of successful login
     } catch (error) {
       console.error("Login failed:", error);
     }

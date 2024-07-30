@@ -27,6 +27,7 @@ const Test: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<any>(null);
 
+
   const handleLogin = () => {
     setLogined(true);
     user.get("alias").then((alias: string) => setUsername(alias));
@@ -39,12 +40,14 @@ const Test: React.FC = () => {
 
   useEffect(() => {
     // Check local storage
-    const storedUsername = localStorage.getItem("username");
-    const storedPassword = localStorage.getItem("password");
-    if (storedUsername && storedPassword) {
-      user.auth(storedUsername, storedPassword);
-    }
-
+    // const storedUsername = localStorage.getItem("username");
+    // const storedPassword = localStorage.getItem("password");
+    // if (storedUsername && storedPassword) {
+    //   console.log("Logging in with stored credentials...", storedUsername);
+    //   user.auth(storedUsername, storedPassword, () => {
+    //     console.log("Logged in with stored credentials");
+    //   });
+    // }
 
     const aliasRef = user.get("alias");
     aliasRef.on((alias: string) => {
@@ -53,7 +56,11 @@ const Test: React.FC = () => {
 
     //get user avatar
     const profileRef = user.get("profile");
-    profileRef.get("avatar").then((avatar: string) => setAvatar(avatar || "https://github.com/shadcn.png"));
+    profileRef
+      .get("avatar")
+      .then((avatar: string) =>
+        setAvatar(avatar || "https://github.com/shadcn.png")
+      );
 
     db.on("auth", async () => {
       const alias = await user.get("alias");
