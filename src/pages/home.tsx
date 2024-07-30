@@ -1,89 +1,109 @@
 import React from 'react';
-import '../styles/globals.css'
+import '../styles/globals.css';
 import { 
   UploadOutlined,
   UserOutlined,
-  VideoCameraOutlined, } from '@ant-design/icons';
+  VideoCameraOutlined,
+  SettingOutlined,
+  EllipsisOutlined, MenuOutlined
+} from '@ant-design/icons';
 import { Layout, Menu, theme, Image } from 'antd';
+
+import DropdownMenuCheckboxes from '../components/DropdownMenu/DropdownMenu'
+
 
 
 const { Content, Sider } = Layout;
 
-// const items = [UserOutlined, VideoCameraOutlined, UploadOutlined, UserOutlined].map(
-//   (icon, index) => ({
-//     key: String(index + 1),
-//     icon:  <div className="flex items-center">
-
-//       <a href={`/chat${index + 1}`}>
-//         <Image
-//           width={50}
-//           className="rounded-full"
-//           src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-//         />
-//       </a>
-//   </div>,
-//     label: `Groups ${index + 1}`,
-//   }),
-// );
-
-
-const items = [UserOutlined, VideoCameraOutlined, UploadOutlined, UserOutlined].map(
-  (icon, index) => ({
-    key: String(index + 1),
+const iteam2 = [
+  {
     icon: (
-      <div className="flex items-center">
-        {index >= 1 ? (
-          <a href={`/test`}>
-            <Image
-              width={50}
-              className="rounded-full"
-              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-            />
-          </a>
-        ) : (
-          <Image
-            width={50}
-            className="rounded-full"
-            src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-          />
-        )}
-      </div>
+      <Image
+        width={50}
+        className="rounded-full"
+        src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+      />
     ),
-    label: `Groups ${index + 1}`,
-    
-  })
-);
+    name: "Hoài Lâm 1",
+    link: "/test",
+    icon2: <DropdownMenuCheckboxes />
+  },
+  {
+    icon: (
+      <Image
+        width={50}
+        className="rounded-full"
+        src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+      />
+    ),
+    name: "Hoài Lâm 2",
+    link: "/test",
+    icon2: <DropdownMenuCheckboxes />
+  },
+  {
+    icon: (
+      <Image
+        width={50}
+        className="rounded-full"
+        src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+      />
+    ),
+    name: "Hoài Lâm 3",
+    link: "/test",
+    icon2: <DropdownMenuCheckboxes /> 
+  }
+];
+
+
+const items = iteam2.map((item, index) => ({
+  key: String(index + 1),
+  icon: (
+    <div className="flex items-center">
+      {/* <a href={item.link}> */}
+        {item.icon}
+      {/* </a> */}
+    </div>
+  ),
+  label: (
+    <div className="flex items-center">
+      {item.name}
+      <span className="ml-2">{item.icon2}</span> {/* Move icon2 outside of the clickable area */}
+    </div>
+  )
+}));
 
 
 const Home: React.FC = () => {
-
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   return (
-
-
     <>
-      <Layout className="bg-neutral-900 px-28 h-lvh">
-      <Sider
-        breakpoint="lg"
-        collapsedWidth="0"
-        onBreakpoint={(broken) => {
-          console.log(broken);
-        }}
-        onCollapse={(collapsed, type) => {
-          console.log(collapsed, type);
-        }}
-      >
-        <div className="demo-logo-vertical" />
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={['4']} items={items} />
-      </Sider>
+      <Layout className="bg-neutral-900 px-28 h-lvh ">
+        <Sider
+        
+          breakpoint="lg"
+
+          collapsedWidth="0"
+          onBreakpoint={(broken) => {
+            console.log(broken);
+          }}
+          onCollapse={(collapsed, type) => {
+            console.log(collapsed, type);
+          }}
+        >
+          <div className="demo-logo-vertical" />
+          <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} items={items} />
+        </Sider>
 
 
-      <Content className='bg-slate-800'>
 
-          {/* <div
+        <Layout>
+
+          <Content className='bg-slate-800'>
+
+            <div
               className='bg-red-500 hover:bg-red-700'
               style={{
                 padding: 24,
@@ -91,10 +111,8 @@ const Home: React.FC = () => {
                 minHeight: 360,
                 background: colorBgContainer,
                 borderRadius: borderRadiusLG,
-                
               }}
             >
-
               <div className='items-center'>
                 <Image
                   width={50}
@@ -104,20 +122,21 @@ const Home: React.FC = () => {
               </div>
 
               <div className='text-left ml-5 bg-gray-200 h-full'>
-                  <h1 className='hover:text-red-500'>User: Hoài Lâm</h1>
-                  <h4>Thành viên đóng góp đáng kể</h4>
-                  <p>
-                    Hồ Chí Minh: Phòng 12, Nhà 8, Đường số 13, Công viên phần mềm Quang Trung, P. Tân Chánh Hiệp, Q.12, TP.HCM, Quận 12 
-                  </p>
+                <h1 className='hover:text-red-500'>User: Hoài Lâm</h1>
+                <h4>Thành viên đóng góp đáng kể</h4>
+                <p>
+                  Hồ Chí Minh: Phòng 12, Nhà 8, Đường số 13, Công viên phần mềm Quang Trung, P. Tân Chánh Hiệp, Q.12, TP.HCM, Quận 12 
+                </p>
+
               </div>
-            </div> */}
-        </Content>
-    </Layout>
+
+            </div>
+          </Content>
+        </Layout>
+      </Layout>
+      
     </>
   );
 };
 
 export default Home;
-
-
-

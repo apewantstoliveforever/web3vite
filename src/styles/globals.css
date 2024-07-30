@@ -109,3 +109,16 @@
   height: 75px !important;
 }
 
+/* .ant-layout-sider.ant-layout-sider-dark.w-350 {
+  width: 350px !important;
+  max-width: 350px !important;
+  min-width: 350px !important;
+} */
+
+.ant-layout-sider.ant-layout-sider-dark {
+  width: 300px !important;
+  max-width: 300px !important;
+  min-width: 300px !important;
+}
+
+/* Ví dụ về CSS có thể ảnh hưởng đến sự hiển thị của icon */
