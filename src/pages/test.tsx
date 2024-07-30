@@ -1,32 +1,51 @@
 import React, { useState, useEffect, useRef } from "react";
-import { db, user } from "@/services/gun";
+import { db, user, sea } from "@/services/gun";
 import Login from "@/components/test-page-component/login-component";
 import Register from "@/components/test-page-component/register-component";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import imageCompression from "browser-image-compression";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import PeerComponent from "@/components/test-page-component/peer-component";
+import { v4 as uuidv4 } from "uuid";
 
 interface Message {
   id: string;
   who: string;
-  what: string;
+  what: string | null;
   timestamp: number;
-  image?: string; // Optional image field in base64
+  image: string | null; // Optional image field in base64
+  type: string | null; // Optional type field for notification messages
 }
 
 const Test: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState<string>("");
   const [logined, setLogined] = useState<boolean>(false);
-  const [username, setUsername] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(
+    localStorage.getItem("username")
+  );
   const [currentRoom, setCurrentRoom] = useState<string>("room1");
   const [image, setImage] = useState<File | null>(null); // For handling image uploads
   const [avatar, setAvatar] = useState<string | null>(null); // For handling avatar uploads
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+
+  const [acceptDialogOpen, setAcceptDialogOpen] = useState<boolean>(false);
+
+  const [selectedUsername, setSelectedUsername] = useState<string>("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<any>(null);
 
+  const [peerId, setPeerId] = useState<string>(uuidv4());
 
   const handleLogin = () => {
     setLogined(true);
@@ -38,16 +57,35 @@ const Test: React.FC = () => {
     user.get("alias").then((alias: string) => setUsername(alias));
   };
 
+  const onSelectedUsernameChange = (username: string) => {
+    setSelectedUsername(username);
+    //open dialog
+    setDialogOpen(true);
+  };
+
+  const sendNotification = async () => {
+    if (username) {
+      const message: Message = {
+        who: username,
+        what: null, // Initialize message field as null
+        timestamp: Date.now(),
+        image: null, // Initialize image field as null
+        type: "notification",
+      };
+      db.get(`rooms/${currentRoom}/messages`).set(message);
+    }
+  };
+
   useEffect(() => {
     // Check local storage
-    // const storedUsername = localStorage.getItem("username");
-    // const storedPassword = localStorage.getItem("password");
-    // if (storedUsername && storedPassword) {
-    //   console.log("Logging in with stored credentials...", storedUsername);
-    //   user.auth(storedUsername, storedPassword, () => {
-    //     console.log("Logged in with stored credentials");
-    //   });
-    // }
+    const storedUsername = localStorage.getItem("username");
+    const storedPassword = localStorage.getItem("password");
+    if (storedUsername && storedPassword) {
+      console.log("Logging in with stored credentials...", storedUsername);
+      user.auth(storedUsername, storedPassword, () => {
+        console.log("Logged in with stored credentials");
+      });
+    }
 
     const aliasRef = user.get("alias");
     aliasRef.on((alias: string) => {
@@ -91,9 +129,20 @@ const Test: React.FC = () => {
         setMessages((prevMessages) => {
           const newMessages = prevMessages.filter((msg) => msg.id !== id);
           newMessages.push({ id, ...message });
+          // if its a new coming notification from other user open dialog
+          // Check if the message is a new notification
+          if (message.type === "notification" && message.who !== username) {
+            console.log("Notification received from", message.who);
+
+            // Compare timestamp to ensure the notification is recent
+            if (Date.now() - message.timestamp < 2000) {
+              setAcceptDialogOpen(true);
+            }
+          }
           return newMessages;
         });
       }
+      //count number of messages
     });
 
     return () => {
@@ -106,11 +155,21 @@ const Test: React.FC = () => {
   const ClearAllChat = async () => {
     if (messagesRef.current) {
       const messages = await messagesRef.current.map().once();
+      console.log("messages", messages);
+      await db.get(`rooms/${currentRoom}/messages`).put(null);
       Object.keys(messages).forEach((id) => {
-        messagesRef.current.get(id).put(null);
+        // messagesRef.current.get(id).put(null);
+        //clear in localstorage
+        localStorage.removeItem(id);
       });
+      setMessages([]); // Clear messages state immediately
       console.log("All chat messages cleared.");
     }
+    // db.get(`rooms/${currentRoom}/messages`).set([]);
+    // //remove all keys in the room
+    // db.get(`rooms/${currentRoom}/messages`).map().once((data, key) => {    });
+    // setMessages([]);
+    // console.log("All chat messages cleared.");
   };
 
   const handleLogout = () => {
@@ -128,6 +187,7 @@ const Test: React.FC = () => {
         what: text,
         timestamp: Date.now(),
         image: null, // Initialize image field as null
+        type: null, // Initialize type field as null
       };
 
       if (image) {
@@ -151,7 +211,7 @@ const Test: React.FC = () => {
 
   const compressImage = async (image: File) => {
     const options = {
-      maxSizeMB: 0.5,
+      maxSizeMB: 0.3,
       maxWidthOrHeight: 1024,
       useWebWorker: true,
     };
@@ -223,12 +283,6 @@ const Test: React.FC = () => {
             <Button onClick={handleAvatarUpload}>Upload Avatar</Button>
           </div>
 
-          {/* Display Avatar */}
-          <Avatar>
-            <AvatarImage src={avatar || "https://github.com/shadcn.png"} />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-
           {/* Room selection */}
           <div>
             <Button
@@ -265,11 +319,23 @@ const Test: React.FC = () => {
           <div style={{ maxHeight: "400px", overflowY: "auto" }}>
             {messages.map((message) => (
               <div key={message.id}>
-                <Avatar>
+                <Avatar
+                  onClick={() => {
+                    if (message.who !== username) {
+                      onSelectedUsernameChange(message.who);
+                    }
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
                   <AvatarImage src="https://github.com/shadcn.png" />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
                 <strong>{message.who}:</strong> {message.what}{" "}
+                {
+                  message.type === "notification" ? (
+                    <span style={{ color: "red" }}>Notification</span>
+                  ) : null // Render a red "Notification" label for notification messages
+                }
                 {message.image && (
                   <img
                     src={message.image}
@@ -293,6 +359,7 @@ const Test: React.FC = () => {
             onChange={(e) => e.target.files && setImage(e.target.files[0])}
           />
           <Button onClick={handleSendMessage}>Send</Button>
+          <Button onClick={sendNotification}>Send Notification</Button>
         </div>
       ) : (
         <div>
@@ -302,6 +369,29 @@ const Test: React.FC = () => {
           <Register onRegister={handleRegister} />
         </div>
       )}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              {selectedUsername} is a user in this chat room.
+              <Button onClick={sendNotification}>Send Notification</Button>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={acceptDialogOpen} onOpenChange={setAcceptDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>My PeerId {peerId}</DialogTitle>
+            <DialogDescription>
+              <PeerComponent senderId={peerId} />
+              {/* <Button onClick={sendNotification}>Send Notification</Button> */}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

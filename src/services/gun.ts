@@ -16,3 +16,5 @@ export const db = Gun({
 });
 
 export const user = db.user().recall({ sessionStorage: true });
+
+export const sea = Gun.SEA;
