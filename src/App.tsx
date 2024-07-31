@@ -10,6 +10,7 @@ import './index.css'; // Include CSS here
 import Test from "./pages/test";
 import './styles/globals.css'; // Include CSS here
 import TestSimplePeer from "./pages/test-simple-peer";
+import TestNewPeer from "./pages/test-new-peer";
 function App() {
 
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path='/chat3' element={<Chat />} />
           <Route path='/test' element={<Test />} />
           <Route path='/test-peer' element={<TestSimplePeer />} />
+          <Route path='/test-peer-new' element={<TestNewPeer />} />
         </Routes>
         <Footer />
       </div>

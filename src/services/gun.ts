@@ -13,6 +13,7 @@ import "gun/axe";
 export const db = Gun({
   radisk: true, // Enable Radisk
   localStorage: false, // Disable localStorage to avoid conflicts
+  peers: ["http://localhost:8765/gun", "http://localhost:3000/gun"],
 });
 
 export const user = db.user().recall({ sessionStorage: true });

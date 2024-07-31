@@ -17,13 +17,16 @@ import {
 import PeerComponent from "@/components/test-page-component/peer-component";
 import { v4 as uuidv4 } from "uuid";
 
+// import { Peer } from "peerjs";
+import Peer from "simple-peer";
+
 interface Message {
-  id: string;
   who: string;
   what: string | null;
   timestamp: number;
   image: string | null; // Optional image field in base64
   type: string | null; // Optional type field for notification messages
+  signal?: string;
 }
 
 const Test: React.FC = () => {
@@ -45,7 +48,12 @@ const Test: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<any>(null);
 
+  const [signal, setSignal] = useState<string>("");
+  const [signalReceive, setSignalReceive] = useState<string>("");
+
   const [peerId, setPeerId] = useState<string>(uuidv4());
+
+  const [enterVideoCall, setEnterVideoCall] = useState<boolean>(false);
 
   const handleLogin = () => {
     setLogined(true);
@@ -71,6 +79,7 @@ const Test: React.FC = () => {
         timestamp: Date.now(),
         image: null, // Initialize image field as null
         type: "notification",
+        signal: peerId,
       };
       db.get(`rooms/${currentRoom}/messages1`).set(message);
     }
@@ -137,6 +146,18 @@ const Test: React.FC = () => {
             // Compare timestamp to ensure the notification is recent
             if (Date.now() - message.timestamp < 3000) {
               setAcceptDialogOpen(true);
+              setSignal(message.signal || "");
+            }
+          } else if (
+            message.type === "notification-accept" &&
+            message.reply === peerId
+          ) {
+            console.log("Notification accepted by", message.who);
+
+            // Compare timestamp to ensure the notification is recent
+            if (Date.now() - message.timestamp < 3000) {
+              setSignal(message.signal || "");
+              setEnterVideoCall(true);
             }
           }
           return newMessages;
@@ -159,7 +180,7 @@ const Test: React.FC = () => {
       messagesRef.current.map().once((data, key) => {
         messagesRef.current.get(key).put(null);
       });
-     
+
       // Object.keys(messages).forEach((id) => {
       //   // messagesRef.current.get(id).put(null);
       //   //clear in localstorage
@@ -387,9 +408,29 @@ const Test: React.FC = () => {
       <Dialog open={acceptDialogOpen} onOpenChange={setAcceptDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>My PeerId {peerId}</DialogTitle>
             <DialogDescription>
-              <PeerComponent senderId={peerId} />
+              <PeerComponent
+                senderId={peerId}
+                senderName={username}
+                signalReceive={signal}
+                currentRoom={currentRoom}
+              />
+              {/* <Button onClick={sendNotification}>Send Notification</Button> */}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={enterVideoCall} onOpenChange={setEnterVideoCall}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogDescription>
+              <PeerComponent
+                senderId={peerId}
+                senderName={username}
+                signalReceive={signal}
+                currentRoom={currentRoom}
+              />
               {/* <Button onClick={sendNotification}>Send Notification</Button> */}
             </DialogDescription>
           </DialogHeader>
