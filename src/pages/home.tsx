@@ -1,19 +1,113 @@
 import React from 'react';
 import '../styles/globals.css';
-import { 
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-  SettingOutlined,
-  EllipsisOutlined, MenuOutlined
-} from '@ant-design/icons';
 import { Layout, Menu, theme, Image } from 'antd';
-
+import TableDemo from '../components/Table/Table'
+import CarouselDemo from '../components/Courses/Courses'
 import DropdownMenuCheckboxes from '../components/DropdownMenu/DropdownMenu'
 
 
 
 const { Content, Sider } = Layout;
+
+const invoices2 = [
+  {
+    invoice: "Vay hãm không lối thoát",
+    img: "https://bloganchoi.com/wp-content/uploads/2023/07/the-roundup-no-way-out-movie-review-2023-3-1.jpg",
+    author: "Ma Dong Seok"
+
+  },
+  {
+    invoice: "Vay hãm không lối thoát 2",
+    img: "https://i.imgur.com//olgEJLE.jpg",
+    author: "Ma Dong Seok"
+
+
+  },
+  {
+    invoice: "Spiderman No Way Home",
+    img: "https://thanhnien.mediacdn.vn/Uploaded/nhuvnq/2021_11_17/poster-3930.jpg",
+    author: "Ma Dong Seok"
+
+
+  },
+  {
+    invoice: "The Dark Knight Rises",
+    img: "https://images.mubicdn.net/images/film/87065/cache-48290-1635149421/image-w1280.jpg",
+    author: "Ma Dong Seok"
+
+
+  },
+  {
+    invoice: "Aquaman: Đế vương Atlantis",
+    img: "https://i-giaitri.vnecdn.net/2023/12/24/aquaman-2-1-jpeg-1703384264-8104-1703384605.jpg",
+    author: "Ma Dong Seok"
+
+  }
+]
+
+const invoices = [
+  {
+    invoice: "Nhà Giả Kim",
+    img: "https://danhkhoireal.vn/wp-content/uploads/2023/06/Nha-gia-kim.jpg",
+    author: "Ma Dong Seok"
+
+  },
+  {
+    invoice: "Nhà Giả Kim",
+    img: "https://danhkhoireal.vn/wp-content/uploads/2023/06/Nha-gia-kim.jpg",
+    author: "Ma Dong Seok"
+
+
+  },
+  {
+    invoice: "Nhà Giả Kim",
+    img: "https://danhkhoireal.vn/wp-content/uploads/2023/06/Nha-gia-kim.jpg",
+    author: "Ma Dong Seok"
+
+
+  },
+  {
+    invoice: "Nhà Giả Kim",
+    img: "https://danhkhoireal.vn/wp-content/uploads/2023/06/Nha-gia-kim.jpg",
+    author: "Ma Dong Seok"
+
+
+  },
+  {
+    invoice: "Nhà Giả Kim",
+    img: "https://danhkhoireal.vn/wp-content/uploads/2023/06/Nha-gia-kim.jpg",
+    author: "Ma Dong Seok"
+
+  }
+]
+
+const invoices3 = [
+  {
+    invoice: "Suyết nữa thì",
+    img: "https://i.ytimg.com/vi/cUmpJ2zwfVU/maxresdefault.jpg",
+    author: "Andiez"
+  },
+  {
+    invoice: "Đi cùng em remix",
+    img: "https://i.ytimg.com/vi/vZItSREB-3g/maxresdefault.jpg",
+    author: "Andiez"
+  },
+  {
+    invoice: "Sống xa anh",
+    img: "https://images2.thanhnien.vn/zoom/686_429/Uploaded/nhith/2017_10_28/22789030_1750403834979580_72232644504707987_n_MWBI.jpg",
+    author: "Bảo Anh"
+  },
+  {
+    invoice: "Gặp nhau năm ta 60",
+    img: "https://cdn.tuoitre.vn/thumb_w/480/471584752817336320/2023/12/22/img4676-1703241787511268795781.png",
+    author: "Orange"
+  },
+  {
+    invoice: "Nơi này có anh",
+    img: "https://baogiaothong.mediacdn.vn/files/nga.le/2017/02/08/148649666967095-15895410-1925493017678548-30153218272872017-n-1486481570222-1413.jpg",
+    author: "Sơn Tùng M-TP"
+  }
+]
 
 const iteam2 = [
   {
@@ -65,9 +159,9 @@ const items = iteam2.map((item, index) => ({
     </div>
   ),
   label: (
-    <div className="flex items-center">
+    <div className="flex items-center text-black">
       {item.name}
-      <span className="ml-2">{item.icon2}</span> {/* Move icon2 outside of the clickable area */}
+      <span className="ml-2 text-white">{item.icon2}</span>
     </div>
   )
 }));
@@ -80,11 +174,9 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <Layout className="bg-neutral-900 px-28 h-lvh ">
+      <Layout className="bg-slate-400 px-28 h-lvh ">
         <Sider
-        
           breakpoint="lg"
-
           collapsedWidth="0"
           onBreakpoint={(broken) => {
             console.log(broken);
@@ -94,17 +186,12 @@ const Home: React.FC = () => {
           }}
         >
           <div className="demo-logo-vertical" />
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} items={items} />
+          <Menu className="bg-slate-300 border-black" theme="dark" mode="inline" defaultSelectedKeys={['1']} items={items} />
         </Sider>
-
-
-
         <Layout>
-
-          <Content className='bg-slate-800'>
-
+          <Content className=''>
             <div
-              className='bg-red-500 hover:bg-red-700'
+              className='bg-red-500 hover:bg-red-700 text-center'
               style={{
                 padding: 24,
                 display: 'flex',
@@ -113,23 +200,14 @@ const Home: React.FC = () => {
                 borderRadius: borderRadiusLG,
               }}
             >
-              <div className='items-center'>
-                <Image
-                  width={50}
-                  className="rounded-full"
-                  src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                />
+              <div className='w-full flex ml-16'>
+                <CarouselDemo />
+                <div className='w-full ml-16'>
+                  <TableDemo array={invoices} name="Books"/>
+                  <TableDemo array={invoices2} name="Films"/>
+                  <TableDemo array={invoices3} name="Musics"/>
+                </div>
               </div>
-
-              <div className='text-left ml-5 bg-gray-200 h-full'>
-                <h1 className='hover:text-red-500'>User: Hoài Lâm</h1>
-                <h4>Thành viên đóng góp đáng kể</h4>
-                <p>
-                  Hồ Chí Minh: Phòng 12, Nhà 8, Đường số 13, Công viên phần mềm Quang Trung, P. Tân Chánh Hiệp, Q.12, TP.HCM, Quận 12 
-                </p>
-
-              </div>
-
             </div>
           </Content>
         </Layout>
