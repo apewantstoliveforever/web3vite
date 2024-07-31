@@ -72,7 +72,7 @@ const Test: React.FC = () => {
         image: null, // Initialize image field as null
         type: "notification",
       };
-      db.get(`rooms/${currentRoom}/messages`).set(message);
+      db.get(`rooms/${currentRoom}/messages1`).set(message);
     }
   };
 
@@ -123,7 +123,7 @@ const Test: React.FC = () => {
     }
 
     console.log("Subscribing to messages in room", currentRoom);
-    messagesRef.current = db.get(`rooms/${currentRoom}/messages`);
+    messagesRef.current = db.get(`rooms/${currentRoom}/messages1`);
     messagesRef.current.map().on((message: any, id: any) => {
       if (message) {
         setMessages((prevMessages) => {
@@ -147,7 +147,7 @@ const Test: React.FC = () => {
 
     return () => {
       if (messagesRef.current) {
-        db.get(`rooms/${currentRoom}/messages`).off();
+        db.get(`rooms/${currentRoom}/messages1`).off();
       }
     };
   }, [currentRoom]);
@@ -156,16 +156,19 @@ const Test: React.FC = () => {
     if (messagesRef.current) {
       const messages = await messagesRef.current.map().once();
       console.log("messages", messages);
-      await db.get(`rooms/${currentRoom}/messages`).put(null);
-      Object.keys(messages).forEach((id) => {
-        // messagesRef.current.get(id).put(null);
-        //clear in localstorage
-        localStorage.removeItem(id);
+      messagesRef.current.map().once((data, key) => {
+        messagesRef.current.get(key).put(null);
       });
+     
+      // Object.keys(messages).forEach((id) => {
+      //   // messagesRef.current.get(id).put(null);
+      //   //clear in localstorage
+      //   localStorage.removeItem(id);
+      // });
       setMessages([]); // Clear messages state immediately
       console.log("All chat messages cleared.");
     }
-    // db.get(`rooms/${currentRoom}/messages`).set([]);
+    // db.get(`rooms/${currentRoom}/messages1`).set([]);
     // //remove all keys in the room
     // db.get(`rooms/${currentRoom}/messages`).map().once((data, key) => {    });
     // setMessages([]);
@@ -195,13 +198,13 @@ const Test: React.FC = () => {
           convertToBase64(compressedImage).then((base64Image) => {
             message.image = base64Image;
 
-            db.get(`rooms/${currentRoom}/messages`).set(message);
+            db.get(`rooms/${currentRoom}/messages1`).set(message);
             setText("");
             setImage(null); // Clear the selected image
           });
         });
       } else {
-        db.get(`rooms/${currentRoom}/messages`).set(message);
+        db.get(`rooms/${currentRoom}/messages1`).set(message);
         setText(""); // Clear the input after sending
       }
     } else {
