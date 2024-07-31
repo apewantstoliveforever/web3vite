@@ -1,36 +1,77 @@
 import React from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./auth/store";
 
-import "./App.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./pages/home";
 import Chat from "./pages/chat";
 import Header from "./layouts/header";
 import Footer from "./layouts/footer";
-import './index.css'; // Include CSS here
 import Test from "./pages/test";
-import './styles/globals.css'; // Include CSS here
 import TestSimplePeer from "./pages/test-simple-peer";
 import TestNewPeer from "./pages/test-new-peer";
-function App() {
+import LoginRegister from "./pages/login-register";
+import { Toaster } from "./components/ui/toaster";
+import { RootState } from "./auth/store";
 
+// AuthRoute component
+const AuthRoute: React.FC<{ isProtected: boolean; children: React.ReactNode }> = ({ isProtected, children }) => {
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
+  if (isProtected && !isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!isProtected && isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Route configuration
+const routes = [
+  { path: "/", element: <Home />, isProtected: true },
+  { path: "/chat", element: <Chat />, isProtected: true },
+  { path: "/chat1", element: <Chat />, isProtected: true },
+  { path: "/chat2", element: <Chat />, isProtected: true },
+  { path: "/chat3", element: <Chat />, isProtected: true },
+  { path: "/test", element: <Test />, isProtected: true },
+  { path: "/test-peer", element: <TestSimplePeer />, isProtected: true },
+  { path: "/test-peer-new", element: <TestNewPeer />, isProtected: true },
+  { path: "/login", element: <LoginRegister />, isProtected: false },
+];
+
+const App: React.FC = () => {
   return (
-    <Router>
-      <div className="App">
-        <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path='/chat1' element={<Chat />} />
-          <Route path='/chat2' element={<Chat />} />
-          <Route path='/chat3' element={<Chat />} />
-          <Route path='/test' element={<Test />} />
-          <Route path='/test-peer' element={<TestSimplePeer />} />
-          <Route path='/test-peer-new' element={<TestNewPeer />} />
-        </Routes>
-        <Footer />
-      </div>
-    </Router>
-  )
-}
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <Router>
+          <div className="App">
+            <Header />
+            <Routes>
+              {routes.map(({ path, element, isProtected }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={<AuthRoute isProtected={isProtected}>{element}</AuthRoute>}
+                />
+              ))}
+            </Routes>
+            <Toaster />
+            <Footer />
+          </div>
+        </Router>
+      </PersistGate>
+    </Provider>
+  );
+};
 
-export default App
+export default App;
