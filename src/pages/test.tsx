@@ -37,7 +37,7 @@ const Test: React.FC = () => {
   );
   const [currentRoom, setCurrentRoom] = useState<string>("room3");
   const [image, setImage] = useState<File | null>(null); // For handling image uploads
-  const [avatar, setAvatar] = useState<string | null>(null); // For handling avatar uploads
+  const [avatar, setAvatar] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
   const [peerId, setPeerId] = useState<string>("");

@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import Peer from 'peerjs'
+import Peer from "peerjs";
 import { Button } from "@/components/ui/button";
 import { db, user, sea } from "@/services/gun";
-
 import { v4 as uuidv4 } from "uuid";
-
 
 interface Message {
   who: string;
@@ -27,8 +25,16 @@ interface PeerComponentProps {
   username: string | null;
 }
 
-const PeerComponent: React.FC<PeerComponentProps> = ({ enterVideoCall, senderId, currentRoom, signalReceive, senderName, setPeerId, peerId, username }) => {
-  const [message, setMessage] = useState<string>("");
+const PeerComponent: React.FC<PeerComponentProps> = ({
+  enterVideoCall,
+  senderId,
+  currentRoom,
+  signalReceive,
+  senderName,
+  setPeerId,
+  peerId,
+  username,
+}) => {
   const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
   const [receiverPeerId, setReceiverPeerId] = useState<string>("");
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -44,13 +50,14 @@ const PeerComponent: React.FC<PeerComponentProps> = ({ enterVideoCall, senderId,
 
   useEffect(() => {
     // Initialize PeerJS
-    const peerInstance = new Peer(undefined, { debug: 3 });
+    const peerInstance = new Peer(uuidv4(), { debug: 3 });
     peerRef.current = peerInstance;
 
     peerInstance.on("open", (id) => {
       console.log("Peer ID:", id);
       setPeerId(id);
-      //send after 1s
+
+      // Send notification after 1s
       setTimeout(() => {
         if (username && enterVideoCall) {
           const message: Message = {
@@ -64,7 +71,6 @@ const PeerComponent: React.FC<PeerComponentProps> = ({ enterVideoCall, senderId,
           db.get(`rooms/${currentRoom}/messages1`).set(message);
         }
       }, 1000);
-
     });
 
     peerInstance.on("connection", (conn) => {
@@ -90,7 +96,7 @@ const PeerComponent: React.FC<PeerComponentProps> = ({ enterVideoCall, senderId,
     return () => {
       peerInstance.destroy();
     };
-  }, [localStream]);
+  }, [localStream, currentRoom, enterVideoCall, setPeerId, username]);
 
   const handleStartWebcam = async () => {
     try {
@@ -109,10 +115,10 @@ const PeerComponent: React.FC<PeerComponentProps> = ({ enterVideoCall, senderId,
 
   const handleConnect = () => {
     const peer = peerRef.current;
-    if (peer && receiverPeerId) {
-      const conn = peer.connect(receiverPeerId);
+    if (peer && signalReceive) {
+      const conn = peer.connect(signalReceive);
       conn.on("open", () => {
-        console.log("Connected to", receiverPeerId);
+        console.log("Connected to", signalReceive);
         conn.send("Connected: " + Math.random());
       });
 
@@ -124,7 +130,7 @@ const PeerComponent: React.FC<PeerComponentProps> = ({ enterVideoCall, senderId,
         ]);
       });
 
-      const call = peer.call(receiverPeerId, localStream!);
+      const call = peer.call(signalReceive, localStream!);
       call.on("stream", (remoteStream) => {
         setRemoteStream(remoteStream);
         if (remoteVideoRef.current) {
@@ -133,7 +139,7 @@ const PeerComponent: React.FC<PeerComponentProps> = ({ enterVideoCall, senderId,
       });
     } else {
       console.error(
-        "Peer connection is not established or receiverPeerId is missing."
+        "Peer connection is not established or signalReceive is missing."
       );
     }
   };
@@ -159,22 +165,9 @@ const PeerComponent: React.FC<PeerComponentProps> = ({ enterVideoCall, senderId,
       <div>PeerJS Video Chat Room</div>
       <p>Your Peer ID: {peerId}</p>
       <p>Peer received {signalReceive}</p>
-      <div>
-        Receiver Peer ID:
-        <input
-          type="text"
-          value={receiverPeerId}
-          onChange={(e) => setReceiverPeerId(e.target.value)}
-        />
-      </div>
-      <Button onClick={handleAccept}>Connect</Button>
-      <button onClick={handleConnect}>Connect</button>
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-      />
-      {/* <button onClick={handleSend}>Send</button> */}
+      <div>Receiver Peer ID:</div>
+      <Button onClick={handleAccept}>Accept</Button>
+      <Button onClick={handleConnect}>Connect</Button>
       <button onClick={handleStartWebcam}>Start Webcam</button>
       <div>
         <h3>Received Messages:</h3>
