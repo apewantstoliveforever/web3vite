@@ -1,31 +1,48 @@
-//header
+// Header.jsx
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../auth/store";
+import DropdownMenuCheckboxes2 from "../components/DropdownMenu/DropdownMenu2";
+import imgLogo from "../assets/snapedit_1722346985126.png";
+import { logout } from "../auth/authSlice";
+import { Button } from "@/components/ui/button";
 
-import React from 'react';
-import DropdownMenuCheckboxes2 from '../components/DropdownMenu/DropdownMenu2'
+const Header: React.FC = () => {
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
-import imgLogo from '../assets/snapedit_1722346985126.png'
-const Header = () => {
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <div>
       <nav>
-        <ul className='flex items-center justify-between'>
+        <ul className="flex items-center justify-between p-4">
           <li>
             <a href="/">
-              <img className='object-fill w-32 h-32' src={imgLogo} />
+              <img
+                className="object-fill w-32 h-32"
+                src={imgLogo}
+                alt="Logo"
+              />
             </a>
           </li>
-          {/* <li>
-            <a href="/chat">Chat</a>
-          </li> */}
+          <li className="text-4xl">DISCORD WEB3</li>
 
-          <li className='text-4xl'>
-            DISCORD WEB3
-          </li>
-
-          <li className='text-4xl'>
-            <DropdownMenuCheckboxes2 name={"hoailam03999@gmail.com"} name2={"Trực tuyến"} name3={"Cái đặt trạng thái tùy chỉnh"} name4={"Đăng xuất"} />
-          </li>
+          {isAuthenticated && (
+            <>
+              <Button onClick={handleLogout}>Logout</Button>
+              <li className="text-4xl">
+                <DropdownMenuCheckboxes2
+                  name={"hoailam03999@gmail.com"}
+                  name2={"Trực tuyến"}
+                  name3={"Cài đặt trạng thái tùy chỉnh"}
+                  name4={"Đăng xuất"}
+                />
+              </li>
+            </>
+          )}
         </ul>
       </nav>
     </div>

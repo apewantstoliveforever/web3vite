@@ -21,9 +21,17 @@ import LoginRegister from "./pages/login-register";
 import { Toaster } from "./components/ui/toaster";
 import { RootState } from "./auth/store";
 
+import "./App.css";
+import Profile from "./pages/profile";
+
 // AuthRoute component
-const AuthRoute: React.FC<{ isProtected: boolean; children: React.ReactNode }> = ({ isProtected, children }) => {
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+const AuthRoute: React.FC<{
+  isProtected: boolean;
+  children: React.ReactNode;
+}> = ({ isProtected, children }) => {
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
 
   if (isProtected && !isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -39,6 +47,7 @@ const AuthRoute: React.FC<{ isProtected: boolean; children: React.ReactNode }> =
 // Route configuration
 const routes = [
   { path: "/", element: <Home />, isProtected: true },
+  { path: "/profile", element: <Profile />, isProtected: true },
   { path: "/chat", element: <Chat />, isProtected: true },
   { path: "/chat1", element: <Chat />, isProtected: true },
   { path: "/chat2", element: <Chat />, isProtected: true },
@@ -56,15 +65,19 @@ const App: React.FC = () => {
         <Router>
           <div className="App">
             <Header />
-            <Routes>
-              {routes.map(({ path, element, isProtected }) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={<AuthRoute isProtected={isProtected}>{element}</AuthRoute>}
-                />
-              ))}
-            </Routes>
+            <div>
+              <Routes>
+                {routes.map(({ path, element, isProtected }) => (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={
+                      <AuthRoute isProtected={isProtected}>{element}</AuthRoute>
+                    }
+                  />
+                ))}
+              </Routes>
+            </div>
             <Toaster />
             <Footer />
           </div>
