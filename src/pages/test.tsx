@@ -33,7 +33,7 @@ const Test: React.FC = () => {
   const [username, setUsername] = useState<string | null>(
     localStorage.getItem("username")
   );
-  const [currentRoom, setCurrentRoom] = useState<string>("room1");
+  const [currentRoom, setCurrentRoom] = useState<string>("room3");
   const [image, setImage] = useState<File | null>(null); // For handling image uploads
   const [avatar, setAvatar] = useState<string | null>(null); // For handling avatar uploads
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -135,7 +135,7 @@ const Test: React.FC = () => {
             console.log("Notification received from", message.who);
 
             // Compare timestamp to ensure the notification is recent
-            if (Date.now() - message.timestamp < 2000) {
+            if (Date.now() - message.timestamp < 3000) {
               setAcceptDialogOpen(true);
             }
           }
@@ -170,7 +170,7 @@ const Test: React.FC = () => {
     }
     // db.get(`rooms/${currentRoom}/messages1`).set([]);
     // //remove all keys in the room
-    // db.get(`rooms/${currentRoom}/messages`).map().once((data, key) => {    });
+    // db.get(`rooms/${currentRoom}/messages1`).map().once((data, key) => {    });
     // setMessages([]);
     // console.log("All chat messages cleared.");
   };
@@ -290,31 +290,31 @@ const Test: React.FC = () => {
           <div>
             <Button
               onClick={() => {
-                if (currentRoom !== "room1") {
+                if (currentRoom !== "room3") {
                   setMessages([]);
-                  setCurrentRoom("room1");
+                  setCurrentRoom("room3");
                 }
               }}
               style={{
                 backgroundColor:
-                  currentRoom === "room1" ? "lightgray" : "transparent",
+                  currentRoom === "room3" ? "lightgray" : "transparent",
               }}
             >
-              Room 1
+              Room 3
             </Button>
             <Button
               onClick={() => {
-                if (currentRoom !== "room2") {
+                if (currentRoom !== "room4") {
                   setMessages([]);
-                  setCurrentRoom("room2");
+                  setCurrentRoom("room4");
                 }
               }}
               style={{
                 backgroundColor:
-                  currentRoom === "room2" ? "lightgray" : "transparent",
+                  currentRoom === "room4" ? "lightgray" : "transparent",
               }}
             >
-              Room 2
+              Room 4
             </Button>
           </div>
 
