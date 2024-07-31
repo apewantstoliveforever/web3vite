@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import Peer from 'simple-peer'
+import Peer from 'peerjs'
 import { Button } from "@/components/ui/button";
 import { db, user, sea } from "@/services/gun";
 
@@ -21,12 +21,15 @@ interface PeerComponentProps {
   currentRoom: string;
   signalReceive: string;
   senderName: string | null;
+  setPeerId: (peerId: string) => void;
+  peerId: string;
+  enterVideoCall: boolean;
+  username: string | null;
 }
 
-const PeerComponent: React.FC<PeerComponentProps> = ({ senderId, currentRoom, signalReceive, senderName }) => {
+const PeerComponent: React.FC<PeerComponentProps> = ({ enterVideoCall, senderId, currentRoom, signalReceive, senderName, setPeerId, peerId, username }) => {
   const [message, setMessage] = useState<string>("");
   const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
-  const [peerId, setPeerId] = useState<string>("");
   const [receiverPeerId, setReceiverPeerId] = useState<string>("");
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
@@ -36,13 +39,32 @@ const PeerComponent: React.FC<PeerComponentProps> = ({ senderId, currentRoom, si
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
+    console.log("Peer ID:", peerId);
+  }, [peerId]);
+
+  useEffect(() => {
     // Initialize PeerJS
-    const peerInstance = new Peer(senderId, { debug: 3 });
+    const peerInstance = new Peer(undefined, { debug: 3 });
     peerRef.current = peerInstance;
 
     peerInstance.on("open", (id) => {
       console.log("Peer ID:", id);
       setPeerId(id);
+      //send after 1s
+      setTimeout(() => {
+        if (username && enterVideoCall) {
+          const message: Message = {
+            who: username,
+            what: null, // Initialize message field as null
+            timestamp: Date.now(),
+            image: null, // Initialize image field as null
+            type: "notification",
+            signal: id,
+          };
+          db.get(`rooms/${currentRoom}/messages1`).set(message);
+        }
+      }, 1000);
+
     });
 
     peerInstance.on("connection", (conn) => {
@@ -117,6 +139,7 @@ const PeerComponent: React.FC<PeerComponentProps> = ({ senderId, currentRoom, si
   };
 
   const handleAccept = () => {
+    console.log("Accepting call", signalReceive);
     if (senderName) {
       const message: Message = {
         who: senderName,
@@ -134,8 +157,8 @@ const PeerComponent: React.FC<PeerComponentProps> = ({ senderId, currentRoom, si
   return (
     <div>
       <div>PeerJS Video Chat Room</div>
-      <p>Your Peer ID: {senderId}</p>
-      <p>Peer received {signalReceive}Ư</p>
+      <p>Your Peer ID: {peerId}</p>
+      <p>Peer received {signalReceive}</p>
       <div>
         Receiver Peer ID:
         <input

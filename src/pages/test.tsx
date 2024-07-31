@@ -15,10 +15,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import PeerComponent from "@/components/test-page-component/peer-component";
-import { v4 as uuidv4 } from "uuid";
 
 // import { Peer } from "peerjs";
-import Peer from "simple-peer";
+import Peer from "peerjs";
 
 interface Message {
   who: string;
@@ -41,8 +40,9 @@ const Test: React.FC = () => {
   const [avatar, setAvatar] = useState<string | null>(null); // For handling avatar uploads
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
-  const [acceptDialogOpen, setAcceptDialogOpen] = useState<boolean>(false);
+  const [peerId, setPeerId] = useState<string>("");
 
+  const [acceptDialogOpen, setAcceptDialogOpen] = useState<boolean>(false);
   const [selectedUsername, setSelectedUsername] = useState<string>("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -50,8 +50,6 @@ const Test: React.FC = () => {
 
   const [signal, setSignal] = useState<string>("");
   const [signalReceive, setSignalReceive] = useState<string>("");
-
-  const [peerId, setPeerId] = useState<string>(uuidv4());
 
   const [enterVideoCall, setEnterVideoCall] = useState<boolean>(false);
 
@@ -72,17 +70,8 @@ const Test: React.FC = () => {
   };
 
   const sendNotification = async () => {
-    if (username) {
-      const message: Message = {
-        who: username,
-        what: null, // Initialize message field as null
-        timestamp: Date.now(),
-        image: null, // Initialize image field as null
-        type: "notification",
-        signal: peerId,
-      };
-      db.get(`rooms/${currentRoom}/messages1`).set(message);
-    }
+    setSignal("");
+    setEnterVideoCall(true);
   };
 
   useEffect(() => {
@@ -149,15 +138,15 @@ const Test: React.FC = () => {
               setSignal(message.signal || "");
             }
           } else if (
-            message.type === "notification-accept" &&
-            message.reply === peerId
+            message.type === "notification-accept"
+            && message.who !== username
           ) {
-            console.log("Notification accepted by", message.who);
+            console.log("Notification signal", message.signal);
+            console.log("Peer", peerId);
 
             // Compare timestamp to ensure the notification is recent
             if (Date.now() - message.timestamp < 3000) {
               setSignal(message.signal || "");
-              setEnterVideoCall(true);
             }
           }
           return newMessages;
@@ -414,6 +403,10 @@ const Test: React.FC = () => {
                 senderName={username}
                 signalReceive={signal}
                 currentRoom={currentRoom}
+                setPeerId={setPeerId}
+                peerId={peerId}
+                enterVideoCall={enterVideoCall}
+                username={username}
               />
               {/* <Button onClick={sendNotification}>Send Notification</Button> */}
             </DialogDescription>
@@ -430,6 +423,10 @@ const Test: React.FC = () => {
                 senderName={username}
                 signalReceive={signal}
                 currentRoom={currentRoom}
+                setPeerId={setPeerId}
+                peerId={peerId}
+                enterVideoCall={enterVideoCall}
+                username={username}
               />
               {/* <Button onClick={sendNotification}>Send Notification</Button> */}
             </DialogDescription>
