@@ -52,7 +52,7 @@ export function CarouselDemo() {
           className="w-full h-full object-cover cursor-pointer"
           src={
             avatar ||
-            "https://i.pinimg.com/736x/fc/5e/88/fc5e882feca95037897d47dca287fb0e.jpg"
+            ""
           }
         />
 
