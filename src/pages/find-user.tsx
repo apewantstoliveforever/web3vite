@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { db, user, sea } from "@/services/gun";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../auth/store";
 import { Card, CardHeader } from "@/components/ui/card";
+import { user } from "@/services/gun";
+
+import { fetchUserFavorites } from "@/services/get-user-data.service";
 
 interface Item {
   id: number;
@@ -25,12 +27,8 @@ const FindUser: React.FC = () => {
   );
 
   useEffect(() => {
-    if (user.is) {
-      user.get("alias").once((data: any) => {
-        // dispatch({ type: "SET_USERNAME", payload: data });
-      });
-    } else if (username && password) {
-      user.auth(username, password, (ack: any) => {
+    if (username && password) {
+      user.auth(username, password, async (ack: any) => {
         if (ack.err) {
           console.error("Error logging in:", ack.err);
         } else {
@@ -39,49 +37,21 @@ const FindUser: React.FC = () => {
         }
       });
     }
-  }, [dispatch, username, password]);
+  }, [username, password]);
 
-  const handleSearch = () => {
-    console.log("Search user:", findUser);
-    db.get(`~@${findUser}`).once((data: any) => {
-      for (const key in data["_"][">"]) {
-        db.get(key)
-          .get("favourite_images")
-          .once((data: any) => {
-            console.log("Images Data:", data.images);
-            if (data && data.images) {
-              setImages(JSON.parse(data.images));
-            }
-          });
-
-        db.get(key)
-          .get("favourite_books")
-          .once((data: any) => {
-            console.log("Books Data:", data.books);
-            if (data && data.books) {
-              setBooks(JSON.parse(data.books));
-            }
-          });
-
-        db.get(key)
-          .get("favourite_songs")
-          .once((data: any) => {
-            console.log("Songs Data:", data.songs);
-            if (data && data.songs) {
-              setSongs(JSON.parse(data.songs));
-            }
-          });
-
-        db.get(key)
-          .get("favourite_videos")
-          .once((data: any) => {
-            console.log("Videos Data:", data.videos);
-            if (data && data.videos) {
-              setVideos(JSON.parse(data.videos));
-            }
-          });
+  const handleSearch = async () => {
+    try {
+      console.log("Find user:", findUser);
+      const data = await fetchUserFavorites(findUser);
+      if (data) {
+        setImages(data.images ? JSON.parse(data.images) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
+        setBooks(data.books ? JSON.parse(data.books) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
+        setSongs(data.songs ? JSON.parse(data.songs) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
+        setVideos(data.videos ? JSON.parse(data.videos) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
       }
-    });
+    } catch (error) {
+      console.error("Error fetching user favorites:", error);
+    }
   };
 
   const renderSection = (title: string, items: Item[]) => (
@@ -92,7 +62,6 @@ const FindUser: React.FC = () => {
           <Card key={item.id}>
             <CardHeader>
               <img
-                key={item.id}
                 src={item.url || "https://via.placeholder.com/400"}
                 alt={`${title.slice(0, -1)} ${item.id}`}
                 className="w-200 h-200 object-cover"

@@ -6,23 +6,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { throttle } from "lodash";
 
 interface Item {
   id: number;
   url: string;
 }
-
-const fetchData = async (type: string, setter: (data: Item[]) => void) => {
-  user.get("favourites").on((data: any) => {
-    console.log("Favourites Data:", data);
-    if (data && data[type]) {
-      setter(JSON.parse(data[type]));
-    } else {
-      // If no data, initialize with 5 placeholders
-      setter(Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
-    }
-  });
-};
 
 const updateData = (type: string, items: Item[]) => {
   user.get("favourites").put({ [type]: JSON.stringify(items) });
@@ -35,22 +24,37 @@ const Profile: React.FC = () => {
     (state: RootState) => state.auth.encryptedPassword
   );
 
-  const [images, setImages] = useState<Item[]>([]);
-  const [books, setBooks] = useState<Item[]>([]);
-  const [songs, setSongs] = useState<Item[]>([]);
-  const [videos, setVideos] = useState<Item[]>([]);
+  const [images, setImages] = useState<Item[]>(
+    Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+  );
+  const [books, setBooks] = useState<Item[]>(
+    Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+  );
+  const [songs, setSongs] = useState<Item[]>(
+    Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+  );
+  const [videos, setVideos] = useState<Item[]>(
+    Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+  );
   const [editItem, setEditItem] = useState<{ type: string; id: number } | null>(
     null
   );
   const [newUrl, setNewUrl] = useState<string>("");
 
   const fetchUserData = () => {
-    fetchData("images", setImages);
-    fetchData("books", setBooks);
-    fetchData("songs", setSongs);
-    fetchData("videos", setVideos);
+    user.get("favourites").on(throttle((data: any) => {
+      console.log("Favourites Data:", data);
+      if (data) {
+        setImages(data.images ? JSON.parse(data.images) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
+        setBooks(data.books ? JSON.parse(data.books) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
+        setSongs(data.songs ? JSON.parse(data.songs) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
+        setVideos(data.videos ? JSON.parse(data.videos) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
+      }
+  }, 1000));
+  // Throttle updates to once per second
+    
   };
-
+  
   useEffect(() => {
     if (user.is) {
       user.get("alias").once(() => {

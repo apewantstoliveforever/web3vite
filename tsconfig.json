@@ -29,6 +29,6 @@
       "@/api": ["./src/api"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "tailwind.config.ts", "src/services/get-user-data.servicets"],
+  "include": ["**/*.ts", "**/*.tsx", "tailwind.config.ts", "src/services/get-user-data.service.ts"],
   "exclude": ["node_modules"]
 }
