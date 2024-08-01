@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../auth/store";
-import { user } from "@/services/gun";
+import { user, db } from "@/services/gun";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -30,25 +30,23 @@ const Profile: React.FC = () => {
   const [editImageId, setEditImageId] = useState<number | null>(null);
   const [newUrl, setNewUrl] = useState<string>("");
 
-  const fetchUserData = () => {
+  const fetchUserData = async () => {
     console.log("Fetching user data");
-    const allImages = user
-      .get("favourite_images")
-      .then((data: any) => {
-        if (data.images) {
-            //parse and split data to get images
-            console.log("Data images:", data.images);
-            const images = JSON.parse(data.images);
-            setImages(images);          
-        }
-      });
-    console.log("All images:", allImages);
+    const allImages = await user.get("favourite_images").then((data: any) => {
+      if (data.images) {
+        //parse and split data to get images
+        console.log("Data images:", data.images);
+        const images = JSON.parse(data.images);
+        setImages(images);
+      }
+    });
   };
 
   useEffect(() => {
     if (user.is) {
       user.get("alias").once((data: any) => {
         // dispatch({ type: "SET_USERNAME", payload: data });
+        fetchUserData();
       });
     } else if (username && password) {
       user.auth(username, password, (ack: any) => {
@@ -57,10 +55,10 @@ const Profile: React.FC = () => {
         } else {
           console.log("Logged in successfully");
           //   dispatch({ type: "SET_USERNAME", payload: username });
+          fetchUserData();
         }
       });
     }
-    fetchUserData();
   }, [dispatch, username, password]);
 
   const handleEdit = (id: number) => {
@@ -81,8 +79,11 @@ const Profile: React.FC = () => {
       //convert updatedImages to json stringtify
       const updatedImagesString = JSON.stringify(updatedImages);
       user.get("favourite_images").put({
-        image: updatedImagesString,
+        images: updatedImagesString,
       });
+      //   db.get(`~@${username}`).get("favourite_images").put({
+      //     image: updatedImagesString,
+      //   });
 
       console.log("Updated images:", updatedImages);
 
@@ -95,6 +96,7 @@ const Profile: React.FC = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-4xl font-bold mb-8">Profile: {username}</h1>
       <div className="grid grid-cols-5 gap-4">
+        <div>images</div>
         {images.map((image) => (
           <Card key={image.id}>
             <CardHeader>

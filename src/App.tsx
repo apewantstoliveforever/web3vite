@@ -23,6 +23,7 @@ import { RootState } from "./auth/store";
 
 import "./App.css";
 import Profile from "./pages/profile";
+import FindUser from "./pages/find-user";
 
 // AuthRoute component
 const AuthRoute: React.FC<{
@@ -48,6 +49,7 @@ const AuthRoute: React.FC<{
 const routes = [
   { path: "/", element: <Home />, isProtected: true },
   { path: "/profile", element: <Profile />, isProtected: true },
+  { path: "/find-user", element: <FindUser />, isProtected: true },
   { path: "/chat", element: <Chat />, isProtected: true },
   { path: "/chat1", element: <Chat />, isProtected: true },
   { path: "/chat2", element: <Chat />, isProtected: true },
