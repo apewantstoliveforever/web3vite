@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { UploadOutlined } from '@ant-design/icons';
 import { throttle } from "lodash";
 import ReactPlayer from "react-player";
 import { Document, Page } from "react-pdf";
@@ -216,8 +217,8 @@ const Profile: React.FC = () => {
               )}
             </CardHeader>
             <CardContent>
-              <Button onClick={() => handleEdit(type, item.id)}>
-                Edit Link
+              <Button className="w-16" onClick={() => handleEdit(type, item.id)}>
+                <UploadOutlined />
               </Button>
             </CardContent>
           </Card>

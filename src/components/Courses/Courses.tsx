@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { user } from "@/services/gun";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import CarouselDemo2 from "../List/List";
+import InputForm from "../Input/InputFed";
 
 export function CarouselDemo() {
   const [avatar, setAvatar] = useState<any>(null);
@@ -55,6 +55,7 @@ export function CarouselDemo() {
             "https://i.pinimg.com/736x/fc/5e/88/fc5e882feca95037897d47dca287fb0e.jpg"
           }
         />
+
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
 
@@ -65,7 +66,8 @@ export function CarouselDemo() {
         onChange={handleAvatarUpload}
         className="hidden"
       />
-      <CarouselDemo2 />
+          <InputForm />
+
     </div>
   );
 }

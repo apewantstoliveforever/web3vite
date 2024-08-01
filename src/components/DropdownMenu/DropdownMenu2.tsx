@@ -17,6 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import CarouselDemo2 from "../List/List";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -41,6 +42,11 @@ export function DropdownMenuCheckboxes({name, name2, name3, name4}) {
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>{name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
+
+
+        <DropdownMenuCheckboxItem>
+        <CarouselDemo2 />
+        </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           // checked={showStatusBar}
           // onCheckedChange={setShowStatusBar}
