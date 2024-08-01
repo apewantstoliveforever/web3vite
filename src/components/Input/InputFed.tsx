@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
+import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,12 +21,21 @@ const FormSchema = z.object({
 })
 
 export function InputForm() {
+  const [showSubmit, setShowSubmit] = useState(false)
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       username: "",
     },
   })
+
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      setShowSubmit(value.username.length > 1)
+    })
+    return () => subscription.unsubscribe()
+  }, [form.watch])
 
   return (
     <Form {...form}>
@@ -43,7 +53,10 @@ export function InputForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+
+        {showSubmit && (
+          <Button type="submit">Submit</Button>
+        )}
       </form>
     </Form>
   )

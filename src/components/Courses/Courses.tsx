@@ -66,7 +66,7 @@ export function CarouselDemo() {
         onChange={handleAvatarUpload}
         className="hidden"
       />
-          <InputForm />
+      <InputForm />
 
     </div>
   );
