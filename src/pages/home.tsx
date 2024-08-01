@@ -175,7 +175,7 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <Layout className="bg-slate-400 px-28 h-full ">
+      <Layout className="bg-slate-400 h-full ">
         <Sider
           breakpoint="lg"
           collapsedWidth="0"
@@ -189,8 +189,8 @@ const Home: React.FC = () => {
           <div className="demo-logo-vertical" />
           <Menu className="bg-slate-300 border-black" theme="dark" mode="inline" defaultSelectedKeys={['1']} items={items} />
         </Sider>
-        <Layout>
-          <Content className=''>
+        <Layout className='bg-slate-900 p-2'>
+        <Content>
             <div
               className='bg-red-500 hover:bg-red-700 text-center'
               style={{
