@@ -1,17 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../auth/store";
-import { user, db } from "@/services/gun";
+import { user } from "@/services/gun";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-// Define the structure of an image item
-interface ImageItem {
+interface Item {
   id: number;
   url: string;
 }
+
+const fetchData = async (type: string, setter: (data: Item[]) => void) => {
+  user.get(`favourite_${type}`).once((data: any) => {
+    if (data && data[type]) {
+      setter(JSON.parse(data[type]));
+    } else {
+      // If no data, initialize with 5 placeholders
+      setter(Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
+    }
+  });
+};
+
+const updateData = (type: string, items: Item[]) => {
+  user.get(`favourite_${type}`).put({ [type]: JSON.stringify(items) });
+};
 
 const Profile: React.FC = () => {
   const dispatch = useDispatch();
@@ -20,32 +34,25 @@ const Profile: React.FC = () => {
     (state: RootState) => state.auth.encryptedPassword
   );
 
-  const [images, setImages] = useState<ImageItem[]>([
-    { id: 1, url: "" },
-    { id: 2, url: "" },
-    { id: 3, url: "" },
-    { id: 4, url: "" },
-    { id: 5, url: "" },
-  ]);
-  const [editImageId, setEditImageId] = useState<number | null>(null);
+  const [images, setImages] = useState<Item[]>([]);
+  const [books, setBooks] = useState<Item[]>([]);
+  const [songs, setSongs] = useState<Item[]>([]);
+  const [videos, setVideos] = useState<Item[]>([]);
+  const [editItem, setEditItem] = useState<{ type: string; id: number } | null>(
+    null
+  );
   const [newUrl, setNewUrl] = useState<string>("");
 
-  const fetchUserData = async () => {
-    console.log("Fetching user data");
-    const allImages = await user.get("favourite_images").then((data: any) => {
-      if (data.images) {
-        //parse and split data to get images
-        console.log("Data images:", data.images);
-        const images = JSON.parse(data.images);
-        setImages(images);
-      }
-    });
+  const fetchUserData = () => {
+    fetchData("images", setImages);
+    fetchData("books", setBooks);
+    fetchData("songs", setSongs);
+    fetchData("videos", setVideos);
   };
 
   useEffect(() => {
     if (user.is) {
-      user.get("alias").once((data: any) => {
-        // dispatch({ type: "SET_USERNAME", payload: data });
+      user.get("alias").once(() => {
         fetchUserData();
       });
     } else if (username && password) {
@@ -54,75 +61,98 @@ const Profile: React.FC = () => {
           console.error("Error logging in:", ack.err);
         } else {
           console.log("Logged in successfully");
-          //   dispatch({ type: "SET_USERNAME", payload: username });
           fetchUserData();
         }
       });
     }
   }, [dispatch, username, password]);
 
-  const handleEdit = (id: number) => {
-    const image = images.find((img) => img.id === id);
-    if (image) {
-      setEditImageId(id);
-      setNewUrl(image.url);
+  const handleEdit = (type: string, id: number) => {
+    const item = {
+      images,
+      books,
+      songs,
+      videos,
+    }[type]?.find((item) => item.id === id);
+
+    if (item) {
+      setEditItem({ type, id });
+      setNewUrl(item.url);
     }
   };
 
   const handleSave = () => {
-    if (editImageId !== null) {
-      const updatedImages = images.map((img) =>
-        img.id === editImageId ? { ...img, url: newUrl } : img
+    if (editItem) {
+      const { type, id } = editItem;
+      const setItems = {
+        images: setImages,
+        books: setBooks,
+        songs: setSongs,
+        videos: setVideos,
+      }[type];
+
+      const items = {
+        images,
+        books,
+        songs,
+        videos,
+      }[type] || [];
+
+      const updatedItems = items.map((item) =>
+        item.id === id ? { ...item, url: newUrl } : item
       );
 
-      setImages(updatedImages);
-      //convert updatedImages to json stringtify
-      const updatedImagesString = JSON.stringify(updatedImages);
-      user.get("favourite_images").put({
-        images: updatedImagesString,
-      });
-      //   db.get(`~@${username}`).get("favourite_images").put({
-      //     image: updatedImagesString,
-      //   });
+      if (setItems) {
+        setItems(updatedItems);
+        updateData(type, updatedItems);
+      }
 
-      console.log("Updated images:", updatedImages);
-
-      setEditImageId(null);
+      setEditItem(null);
       setNewUrl("");
     }
   };
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold mb-8">Profile: {username}</h1>
+  const renderSection = (type: string, items: Item[]) => (
+    <div>
+      <div>{type.charAt(0).toUpperCase() + type.slice(1)}</div>
       <div className="grid grid-cols-5 gap-4">
-        <div>images</div>
-        {images.map((image) => (
-          <Card key={image.id}>
+        {items.map((item) => (
+          <Card key={item.id}>
             <CardHeader>
               <img
-                src={image.url || "https://via.placeholder.com/400"}
-                alt={`Image ${image.id}`}
-                className="w-400 h-400 object-cover"
+                src={item.url || "https://via.placeholder.com/400"}
+                alt={`${type.slice(0, -1)} ${item.id}`}
+                className="w-200 h-200 object-cover"
               />
             </CardHeader>
             <CardContent>
-              <Button onClick={() => handleEdit(image.id)}>Edit Link</Button>
+              <Button onClick={() => handleEdit(type, item.id)}>Edit Link</Button>
             </CardContent>
           </Card>
         ))}
       </div>
-      {editImageId !== null && (
-        <Dialog open={true} onOpenChange={() => setEditImageId(null)}>
+    </div>
+  );
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-4xl font-bold mb-8">Profile: {username}</h1>
+      {renderSection("images", images)}
+      {renderSection("books", books)}
+      {renderSection("songs", songs)}
+      {renderSection("videos", videos)}
+
+      {editItem && (
+        <Dialog open={true} onOpenChange={() => setEditItem(null)}>
           <DialogTrigger asChild>
-            <Button>Edit Image URL</Button>
+            <Button>Edit {editItem.type.slice(0, -1)} URL</Button>
           </DialogTrigger>
           <DialogContent>
             <Input
               type="text"
               value={newUrl}
               onChange={(e) => setNewUrl(e.target.value)}
-              placeholder="Enter new image URL"
+              placeholder={`Enter new ${editItem.type.slice(0, -1)} URL`}
             />
             <Button onClick={handleSave} className="mt-2">
               Save
