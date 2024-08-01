@@ -8,5 +8,5 @@ interface Item {
 }
 
 export const updateData = (type: string, items: Item[]) => {
-  user.get(`favourite_${type}`).put({ [type]: JSON.stringify(items) });
+  user.get("favourites").put({ [type]: JSON.stringify(items) });
 };

@@ -1,4 +1,6 @@
-import { db } from '../services/gun'
+// fetch-user-favorites.service.ts
+
+import { db } from '../services/gun';
 
 interface Item {
   id: number;
@@ -13,55 +15,20 @@ const fetchUserFavorites = async (username: string) => {
     videos: [] as Item[],
   };
 
-  await new Promise<void>((resolve) => {
+  return new Promise<{ images: Item[]; books: Item[]; songs: Item[]; videos: Item[] }>((resolve) => {
     db.get(`~@${username}`).once((data: any) => {
-      let pendingRequests = 0;
+      if (data && data.favourites) {
+        const favourites = JSON.parse(data.favourites);
 
-      for (const key in data["_"][">"]) {
-        pendingRequests++;
-
-        db.get(key)
-          .get("favourite_images")
-          .once((data: any) => {
-            if (data && data.images) {
-              result.images = JSON.parse(data.images);
-            }
-            if (--pendingRequests === 0) resolve();
-          });
-
-        db.get(key)
-          .get("favourite_books")
-          .once((data: any) => {
-            if (data && data.books) {
-              result.books = JSON.parse(data.books);
-            }
-            if (--pendingRequests === 0) resolve();
-          });
-
-        db.get(key)
-          .get("favourite_songs")
-          .once((data: any) => {
-            if (data && data.songs) {
-              result.songs = JSON.parse(data.songs);
-            }
-            if (--pendingRequests === 0) resolve();
-          });
-
-        db.get(key)
-          .get("favourite_videos")
-          .once((data: any) => {
-            if (data && data.videos) {
-              result.videos = JSON.parse(data.videos);
-            }
-            if (--pendingRequests === 0) resolve();
-          });
+        result.images = favourites.images || [];
+        result.books = favourites.books || [];
+        result.songs = favourites.songs || [];
+        result.videos = favourites.videos || [];
       }
 
-      if (pendingRequests === 0) resolve();
+      resolve(result);
     });
   });
-
-  return result;
 };
 
 export { fetchUserFavorites };

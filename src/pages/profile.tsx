@@ -13,7 +13,8 @@ interface Item {
 }
 
 const fetchData = async (type: string, setter: (data: Item[]) => void) => {
-  user.get(`favourite_${type}`).once((data: any) => {
+  user.get("favourites").on((data: any) => {
+    console.log("Favourites Data:", data);
     if (data && data[type]) {
       setter(JSON.parse(data[type]));
     } else {
@@ -24,7 +25,7 @@ const fetchData = async (type: string, setter: (data: Item[]) => void) => {
 };
 
 const updateData = (type: string, items: Item[]) => {
-  user.get(`favourite_${type}`).put({ [type]: JSON.stringify(items) });
+  user.get("favourites").put({ [type]: JSON.stringify(items) });
 };
 
 const Profile: React.FC = () => {
@@ -114,7 +115,7 @@ const Profile: React.FC = () => {
 
   const renderSection = (type: string, items: Item[]) => (
     <div>
-      <div>{type.charAt(0).toUpperCase() + type.slice(1)}</div>
+      <div className="text-xl font-semibold mb-4">{type.charAt(0).toUpperCase() + type.slice(1)}</div>
       <div className="grid grid-cols-5 gap-4">
         {items.map((item) => (
           <Card key={item.id}>
