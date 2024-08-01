@@ -1,0 +1,67 @@
+import { db } from '../services/gun'
+
+interface Item {
+  id: number;
+  url: string;
+}
+
+const fetchUserFavorites = async (username: string) => {
+  const result = {
+    images: [] as Item[],
+    books: [] as Item[],
+    songs: [] as Item[],
+    videos: [] as Item[],
+  };
+
+  await new Promise<void>((resolve) => {
+    db.get(`~@${username}`).once((data: any) => {
+      let pendingRequests = 0;
+
+      for (const key in data["_"][">"]) {
+        pendingRequests++;
+
+        db.get(key)
+          .get("favourite_images")
+          .once((data: any) => {
+            if (data && data.images) {
+              result.images = JSON.parse(data.images);
+            }
+            if (--pendingRequests === 0) resolve();
+          });
+
+        db.get(key)
+          .get("favourite_books")
+          .once((data: any) => {
+            if (data && data.books) {
+              result.books = JSON.parse(data.books);
+            }
+            if (--pendingRequests === 0) resolve();
+          });
+
+        db.get(key)
+          .get("favourite_songs")
+          .once((data: any) => {
+            if (data && data.songs) {
+              result.songs = JSON.parse(data.songs);
+            }
+            if (--pendingRequests === 0) resolve();
+          });
+
+        db.get(key)
+          .get("favourite_videos")
+          .once((data: any) => {
+            if (data && data.videos) {
+              result.videos = JSON.parse(data.videos);
+            }
+            if (--pendingRequests === 0) resolve();
+          });
+      }
+
+      if (pendingRequests === 0) resolve();
+    });
+  });
+
+  return result;
+};
+
+export { fetchUserFavorites };
