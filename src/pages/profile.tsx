@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { throttle } from "lodash";
 import ReactPlayer from "react-player";
+import { Document, Page } from 'react-pdf';
+import EPUBJS from 'epubjs';
 
 interface Item {
   id: number;
@@ -15,8 +17,40 @@ interface Item {
   audioUrl?: string;
 }
 
-const AudioPlayer: React.FC<{ url: string }> = ({ url }) => (
-  <ReactPlayer url={url} playing={false} controls={true} width="100%" height="50px" />
+interface AudioPlayerProps {
+  url: string;
+}
+
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ url }) => {
+  const isVideoUrl = ReactPlayer.canPlay(url) && !url.endsWith(".mp3");
+
+  return (
+    <ReactPlayer
+      url={url}
+      playing={false}
+      controls={true}
+      width="100%"
+      height={isVideoUrl ? "200px" : "50px"}
+      config={{
+        file: {
+          forceAudio: true, // Always render an <audio> element
+          attributes: {
+            poster: isVideoUrl ? "https://via.placeholder.com/400" : undefined, // Placeholder for video thumbnail
+          },
+        },
+      }}
+    />
+  );
+};
+
+const VideoPlayer: React.FC<{ url: string }> = ({ url }) => (
+  <ReactPlayer
+    url={url}
+    playing={false}
+    controls={true}
+    width="100%"
+    height="200px"
+  />
 );
 
 const updateData = (type: string, items: Item[]) => {
@@ -48,19 +82,40 @@ const Profile: React.FC = () => {
   const [newUrl, setNewUrl] = useState<string>("");
 
   const fetchUserData = () => {
-    user.get("favourites").on(throttle((data: any) => {
-      console.log("Favourites Data:", data);
-      if (data) {
-        setImages(data.images ? JSON.parse(data.images) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
-        setBooks(data.books ? JSON.parse(data.books) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
-        setSongs(data.songs ? JSON.parse(data.songs) : Array.from({ length: 5 }, (_, id) => ({ id, url: "", audioUrl: "" })));
-        setVideos(data.videos ? JSON.parse(data.videos) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
-      }
-  }, 1000));
-  // Throttle updates to once per second
-    
+    user.get("favourites").on(
+      throttle((data: any) => {
+        console.log("Favourites Data:", data);
+        if (data) {
+          setImages(
+            data.images
+              ? JSON.parse(data.images)
+              : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+          );
+          setBooks(
+            data.books
+              ? JSON.parse(data.books)
+              : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+          );
+          setSongs(
+            data.songs
+              ? JSON.parse(data.songs)
+              : Array.from({ length: 5 }, (_, id) => ({
+                  id,
+                  url: "",
+                  audioUrl: "",
+                }))
+          );
+          setVideos(
+            data.videos
+              ? JSON.parse(data.videos)
+              : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+          );
+        }
+      }, 1000)
+    );
+    // Throttle updates to once per second
   };
-  
+
   useEffect(() => {
     if (user.is) {
       user.get("alias").once(() => {
@@ -102,12 +157,13 @@ const Profile: React.FC = () => {
         videos: setVideos,
       }[type];
 
-      const items = {
-        images,
-        books,
-        songs,
-        videos,
-      }[type] || [];
+      const items =
+        {
+          images,
+          books,
+          songs,
+          videos,
+        }[type] || [];
 
       const updatedItems = items.map((item) =>
         item.id === id ? { ...item, url: newUrl } : item
@@ -125,13 +181,34 @@ const Profile: React.FC = () => {
 
   const renderSection = (type: string, items: Item[]) => (
     <div>
-      <div className="text-xl font-semibold mb-4">{type.charAt(0).toUpperCase() + type.slice(1)}</div>
+      <div className="text-xl font-semibold mb-4">
+        {type.charAt(0).toUpperCase() + type.slice(1)}
+      </div>
       <div className="grid grid-cols-5 gap-4">
         {items.map((item) => (
           <Card key={item.id}>
             <CardHeader>
-              {type === 'songs' && item.url ? (
+              {type === "songs" && item.url ? (
                 <AudioPlayer url={item.url} />
+              ) : type === "books" && item.url ? (
+                <>
+                  {item.url && (
+                    <Document file={item.url}>
+                      <Page pageNumber={1} width={200} />
+                    </Document>
+                  )}
+                  {item.url && (
+                    <div>
+                      <img
+                        src={`https://covers.openlibrary.org/b/id/${item.id}-L.jpg`} // Placeholder, adjust as needed
+                        alt={`Book cover ${item.id}`}
+                        className="w-200 h-200 object-cover"
+                      />
+                    </div>
+                  )}
+                </>
+              ) : type === "videos" && item.url ? (
+                <VideoPlayer url={item.url} />
               ) : (
                 <img
                   src={item.url || "https://via.placeholder.com/400"}
@@ -141,14 +218,15 @@ const Profile: React.FC = () => {
               )}
             </CardHeader>
             <CardContent>
-              <Button onClick={() => handleEdit(type, item.id)}>Edit Link</Button>
+              <Button onClick={() => handleEdit(type, item.id)}>
+                Edit Link
+              </Button>
             </CardContent>
           </Card>
         ))}
       </div>
     </div>
   );
-  
 
   return (
     <div className="container mx-auto p-4">

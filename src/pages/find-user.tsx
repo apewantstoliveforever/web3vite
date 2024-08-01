@@ -5,6 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../auth/store";
 import { Card, CardHeader } from "@/components/ui/card";
 import { user } from "@/services/gun";
+import ReactPlayer from "react-player";
+import { Document, Page } from 'react-pdf';
+import EPUBJS from 'epubjs';
 
 import { fetchUserFavorites } from "@/services/get-user-data.service";
 
@@ -12,6 +15,40 @@ interface Item {
   id: number;
   url: string;
 }
+interface AudioPlayerProps {
+  url: string;
+}
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ url }) => {
+  const isVideoUrl = ReactPlayer.canPlay(url) && !url.endsWith(".mp3");
+
+  return (
+    <ReactPlayer
+      url={url}
+      playing={false}
+      controls={true}
+      width="100%"
+      height={isVideoUrl ? "200px" : "50px"}
+      config={{
+        file: {
+          forceAudio: true, // Always render an <audio> element
+          attributes: {
+            poster: isVideoUrl ? "https://via.placeholder.com/400" : undefined, // Placeholder for video thumbnail
+          },
+        },
+      }}
+    />
+  );
+};
+
+const VideoPlayer: React.FC<{ url: string }> = ({ url }) => (
+  <ReactPlayer
+    url={url}
+    playing={false}
+    controls={true}
+    width="100%"
+    height="200px"
+  />
+);
 
 const FindUser: React.FC = () => {
   const [findUser, setFindUser] = useState<string>("");
@@ -41,9 +78,10 @@ const FindUser: React.FC = () => {
 
   const handleSearch = async () => {
     try {
-      console.log("Find user:", findUser);
+      console.log("Find user: zzz", findUser);
       const data = await fetchUserFavorites(findUser);
       if (data) {
+        console.log("User favorites:", data);
         setImages(data.images ? JSON.parse(data.images) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
         setBooks(data.books ? JSON.parse(data.books) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
         setSongs(data.songs ? JSON.parse(data.songs) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
@@ -54,18 +92,42 @@ const FindUser: React.FC = () => {
     }
   };
 
-  const renderSection = (title: string, items: Item[]) => (
+  const renderSection = (type: string, items: Item[]) => (
     <div>
-      <h2 className="text-2xl font-bold mb-4">{title}</h2>
-      <div className="grid grid-cols-5 gap-4">
+      <div className="text-xl font-semibold mb-4">
+        {type.charAt(0).toUpperCase() + type.slice(1)}
+      </div>      <div className="grid grid-cols-5 gap-4">
         {items.map((item) => (
           <Card key={item.id}>
             <CardHeader>
-              <img
-                src={item.url || "https://via.placeholder.com/400"}
-                alt={`${title.slice(0, -1)} ${item.id}`}
-                className="w-200 h-200 object-cover"
-              />
+              {type === "songs" && item.url ? (
+                <AudioPlayer url={item.url} />
+              ) : type === "books" && item.url ? (
+                <>
+                  {item.url && (
+                    <Document file={item.url}>
+                      <Page pageNumber={1} width={200} />
+                    </Document>
+                  )}
+                  {item.url && (
+                    <div>
+                      <img
+                        src={`https://covers.openlibrary.org/b/id/${item.id}-L.jpg`} // Placeholder, adjust as needed
+                        alt={`Book cover ${item.id}`}
+                        className="w-200 h-200 object-cover"
+                      />
+                    </div>
+                  )}
+                </>
+              ) : type === "videos" && item.url ? (
+                <VideoPlayer url={item.url} />
+              ) : (
+                <img
+                  src={item.url || "https://via.placeholder.com/400"}
+                  alt={`${type.slice(0, -1)} ${item.id}`}
+                  className="w-200 h-200 object-cover"
+                />
+              )}
             </CardHeader>
           </Card>
         ))}
@@ -86,10 +148,10 @@ const FindUser: React.FC = () => {
         />
         <Button onClick={handleSearch}>Search</Button>
       </div>
-      {images.length > 0 && renderSection("Favorite Images", images)}
-      {books.length > 0 && renderSection("Favorite Books", books)}
-      {songs.length > 0 && renderSection("Favorite Songs", songs)}
-      {videos.length > 0 && renderSection("Favorite Videos", videos)}
+      {renderSection("images", images)}
+      {renderSection("books", books)}
+      {renderSection("songs", songs)}
+      {renderSection("videos", videos)}
     </div>
   );
 };
