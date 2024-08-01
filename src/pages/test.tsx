@@ -75,16 +75,6 @@ const Test: React.FC = () => {
   };
 
   useEffect(() => {
-    // Check local storage
-    const storedUsername = localStorage.getItem("username");
-    const storedPassword = localStorage.getItem("password");
-    if (storedUsername && storedPassword) {
-      console.log("Logging in with stored credentials...", storedUsername);
-      user.auth(storedUsername, storedPassword, () => {
-        console.log("Logged in with stored credentials");
-      });
-    }
-
     const aliasRef = user.get("alias");
     aliasRef.on((alias: string) => {
       setUsername(alias);
@@ -138,8 +128,8 @@ const Test: React.FC = () => {
               setSignal(message.signal || "");
             }
           } else if (
-            message.type === "notification-accept"
-            && message.who !== username
+            message.type === "notification-accept" &&
+            message.who !== username
           ) {
             console.log("Notification signal", message.signal);
             console.log("Peer", peerId);
@@ -274,114 +264,104 @@ const Test: React.FC = () => {
 
   return (
     <div>
-      {logined ? (
+      <div>
         <div>
-          <div>
-            <h2>Welcome {username}</h2>
-            <Avatar>
-              <AvatarImage src={avatar || "https://github.com/shadcn.png"} />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-          </div>
-          <Button onClick={handleLogout}>Logout</Button>
-          <Button onClick={ClearAllChat}>Clear All Chat</Button>
+          <h2>Welcome {username}</h2>
+          <Avatar>
+            <AvatarImage src={avatar || "https://github.com/shadcn.png"} />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+        </div>
+        <Button onClick={ClearAllChat}>Clear All Chat</Button>
 
-          {/* Avatar upload */}
-          <div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => e.target.files && setAvatar(e.target.files[0])}
-            />
-            <Button onClick={handleAvatarUpload}>Upload Avatar</Button>
-          </div>
-
-          {/* Room selection */}
-          <div>
-            <Button
-              onClick={() => {
-                if (currentRoom !== "room3") {
-                  setMessages([]);
-                  setCurrentRoom("room3");
-                }
-              }}
-              style={{
-                backgroundColor:
-                  currentRoom === "room3" ? "lightgray" : "transparent",
-              }}
-            >
-              Room 3
-            </Button>
-            <Button
-              onClick={() => {
-                if (currentRoom !== "room4") {
-                  setMessages([]);
-                  setCurrentRoom("room4");
-                }
-              }}
-              style={{
-                backgroundColor:
-                  currentRoom === "room4" ? "lightgray" : "transparent",
-              }}
-            >
-              Room 4
-            </Button>
-          </div>
-
-          {/* Message container with scroll */}
-          <div style={{ maxHeight: "400px", overflowY: "auto" }}>
-            {messages.map((message) => (
-              <div key={message.id}>
-                <Avatar
-                  onClick={() => {
-                    if (message.who !== username) {
-                      onSelectedUsernameChange(message.who);
-                    }
-                  }}
-                  style={{ cursor: "pointer" }}
-                >
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <strong>{message.who}:</strong> {message.what}{" "}
-                {
-                  message.type === "notification" ? (
-                    <span style={{ color: "red" }}>Notification</span>
-                  ) : null // Render a red "Notification" label for notification messages
-                }
-                {message.image && (
-                  <img
-                    src={message.image}
-                    alt="sent"
-                    style={{ maxWidth: "400px", maxHeight: "400px" }}
-                  />
-                )}
-                <span style={{ fontSize: "small", color: "gray" }}>
-                  {formatTimestamp(message.timestamp)}
-                </span>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Input and send button */}
-          <Input value={text} onChange={(e) => setText(e.target.value)} />
+        {/* Avatar upload */}
+        <div>
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => e.target.files && setImage(e.target.files[0])}
+            onChange={(e) => e.target.files && setAvatar(e.target.files[0])}
           />
-          <Button onClick={handleSendMessage}>Send</Button>
-          <Button onClick={sendNotification}>Send Notification</Button>
+          <Button onClick={handleAvatarUpload}>Upload Avatar</Button>
         </div>
-      ) : (
+
+        {/* Room selection */}
         <div>
-          <div className="text-red-600">color</div>
-          <Login onLogin={handleLogin} />
-          <h2>Register</h2>
-          <Register onRegister={handleRegister} />
+          <Button
+            onClick={() => {
+              if (currentRoom !== "room3") {
+                setMessages([]);
+                setCurrentRoom("room3");
+              }
+            }}
+            style={{
+              backgroundColor:
+                currentRoom === "room3" ? "lightgray" : "transparent",
+            }}
+          >
+            Room 3
+          </Button>
+          <Button
+            onClick={() => {
+              if (currentRoom !== "room4") {
+                setMessages([]);
+                setCurrentRoom("room4");
+              }
+            }}
+            style={{
+              backgroundColor:
+                currentRoom === "room4" ? "lightgray" : "transparent",
+            }}
+          >
+            Room 4
+          </Button>
         </div>
-      )}
+
+        {/* Message container with scroll */}
+        <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+          {messages.map((message) => (
+            <div key={message.id}>
+              <Avatar
+                onClick={() => {
+                  if (message.who !== username) {
+                    onSelectedUsernameChange(message.who);
+                  }
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+              <strong>{message.who}:</strong> {message.what}{" "}
+              {
+                message.type === "notification" ? (
+                  <span style={{ color: "red" }}>Notification</span>
+                ) : null // Render a red "Notification" label for notification messages
+              }
+              {message.image && (
+                <img
+                  src={message.image}
+                  alt="sent"
+                  style={{ maxWidth: "400px", maxHeight: "400px" }}
+                />
+              )}
+              <span style={{ fontSize: "small", color: "gray" }}>
+                {formatTimestamp(message.timestamp)}
+              </span>
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input and send button */}
+        <Input value={text} onChange={(e) => setText(e.target.value)} />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => e.target.files && setImage(e.target.files[0])}
+        />
+        <Button onClick={handleSendMessage}>Send</Button>
+        <Button onClick={sendNotification}>Send Notification</Button>
+      </div>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
