@@ -7,11 +7,17 @@ import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { throttle } from "lodash";
+import ReactPlayer from "react-player";
 
 interface Item {
   id: number;
   url: string;
+  audioUrl?: string;
 }
+
+const AudioPlayer: React.FC<{ url: string }> = ({ url }) => (
+  <ReactPlayer url={url} playing={false} controls={true} width="100%" height="50px" />
+);
 
 const updateData = (type: string, items: Item[]) => {
   user.get("favourites").put({ [type]: JSON.stringify(items) });
@@ -47,7 +53,7 @@ const Profile: React.FC = () => {
       if (data) {
         setImages(data.images ? JSON.parse(data.images) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
         setBooks(data.books ? JSON.parse(data.books) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
-        setSongs(data.songs ? JSON.parse(data.songs) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
+        setSongs(data.songs ? JSON.parse(data.songs) : Array.from({ length: 5 }, (_, id) => ({ id, url: "", audioUrl: "" })));
         setVideos(data.videos ? JSON.parse(data.videos) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
       }
   }, 1000));
@@ -124,11 +130,15 @@ const Profile: React.FC = () => {
         {items.map((item) => (
           <Card key={item.id}>
             <CardHeader>
-              <img
-                src={item.url || "https://via.placeholder.com/400"}
-                alt={`${type.slice(0, -1)} ${item.id}`}
-                className="w-200 h-200 object-cover"
-              />
+              {type === 'songs' && item.url ? (
+                <AudioPlayer url={item.url} />
+              ) : (
+                <img
+                  src={item.url || "https://via.placeholder.com/400"}
+                  alt={`${type.slice(0, -1)} ${item.id}`}
+                  className="w-200 h-200 object-cover"
+                />
+              )}
             </CardHeader>
             <CardContent>
               <Button onClick={() => handleEdit(type, item.id)}>Edit Link</Button>
@@ -138,6 +148,7 @@ const Profile: React.FC = () => {
       </div>
     </div>
   );
+  
 
   return (
     <div className="container mx-auto p-4">
