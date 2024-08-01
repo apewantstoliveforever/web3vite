@@ -28,7 +28,7 @@ const fetchUserFavorites = async (username: string): Promise<UserFavorites> => {
       keys.forEach((key) => {
         db.get(key)
           .get("favourites")
-          .once((data: any) => {
+          .on((data: any) => {
             if (data) {
               result.images = data.images || "";
               result.books = data.books || "";
@@ -43,7 +43,7 @@ const fetchUserFavorites = async (username: string): Promise<UserFavorites> => {
           });
       });
       //off the on if you want to stop listening to the data
-      db.get(`~@${username}`).off();
+      // db.get(`~@${username}`).off();
     });
   });
 };

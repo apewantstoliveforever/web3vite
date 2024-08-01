@@ -13,7 +13,7 @@ import { fetchUserFavorites } from "@/services/get-user-data.service";
 
 interface Item {
   id: number;
-  url: string;
+  url: any;
 }
 interface AudioPlayerProps {
   url: string;
@@ -104,14 +104,9 @@ const FindUser: React.FC = () => {
               ) : type === "books" && item.url ? (
                 <>
                   {item.url && (
-                    <Document file={item.url}>
-                      <Page pageNumber={1} width={200} />
-                    </Document>
-                  )}
-                  {item.url && (
                     <div>
                       <img
-                        src={`https://covers.openlibrary.org/b/id/${item.id}-L.jpg`} // Placeholder, adjust as needed
+                        src={`https://covers.openlibrary.org/b/id/${item.url.cover}-M.jpg`}
                         alt={`Book cover ${item.id}`}
                         className="w-200 h-200 object-cover"
                       />
