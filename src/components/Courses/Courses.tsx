@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { user } from "@/services/gun";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import CarouselDemo2 from "../List/List";
 
 export function CarouselDemo() {
   const [avatar, setAvatar] = useState<any>(null);
@@ -56,6 +57,7 @@ export function CarouselDemo() {
       onChange={handleAvatarUpload}
       className="hidden"
     />
+    <CarouselDemo2 />
   </div>
   );
 }
