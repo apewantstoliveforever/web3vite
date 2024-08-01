@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 const Header: React.FC = () => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const username = useSelector((state: RootState) => state.auth.username);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -29,20 +30,15 @@ const Header: React.FC = () => {
             </a>
           </li>
           <li className="text-4xl">DISCORD WEB3</li>
-
-          {isAuthenticated && (
-            <>
-              <Button onClick={handleLogout}>Logout</Button>
-              <li className="text-4xl">
+          <li className="text-4xl">
                 <DropdownMenuCheckboxes2
-                  name={"hoailam03999@gmail.com"}
+                  name={username}
                   name2={"Trực tuyến"}
                   name3={"Cài đặt trạng thái tùy chỉnh"}
                   name4={"Đăng xuất"}
+
                 />
               </li>
-            </>
-          )}
         </ul>
       </nav>
     </div>

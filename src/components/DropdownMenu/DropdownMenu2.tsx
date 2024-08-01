@@ -5,6 +5,9 @@ import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
 import {  MenuOutlined } from '@ant-design/icons';
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../auth/authSlice";
+import { logout } from "../../auth/authSlice";
 
 import {
   DropdownMenu,
@@ -22,7 +25,14 @@ export function DropdownMenuCheckboxes({name, name2, name3, name4}) {
   const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
   
   // const [showPanel, setShowPanel] = React.useState<Checked>(false)
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const username = useSelector((state: RootState) => state.auth.username);
 
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -46,13 +56,16 @@ export function DropdownMenuCheckboxes({name, name2, name3, name4}) {
         >
           {name3}
         </DropdownMenuCheckboxItem>
+
         <DropdownMenuCheckboxItem
-          // checked={showPanel}
-          // onCheckedChange={setShowPanel}
           className="cursor-pointer"
+          onClick={handleLogout}
         >
           {name4}
         </DropdownMenuCheckboxItem>
+
+{/* )} */}
+
       </DropdownMenuContent>
     </DropdownMenu>
   )

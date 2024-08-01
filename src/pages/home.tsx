@@ -4,6 +4,7 @@ import { Layout, Menu, theme, Image } from 'antd';
 import TableDemo from '../components/Table/Table'
 import CarouselDemo from '../components/Courses/Courses'
 import DropdownMenuCheckboxes from '../components/DropdownMenu/DropdownMenu'
+import Profile from '../pages/profile'
 
 
 
@@ -174,7 +175,7 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <Layout className="bg-slate-400 px-28 h-lvh ">
+      <Layout className="bg-slate-400 px-28 h-full ">
         <Sider
           breakpoint="lg"
           collapsedWidth="0"
@@ -203,9 +204,10 @@ const Home: React.FC = () => {
               <div className='w-full flex ml-16'>
                 <CarouselDemo />
                 <div className='w-full ml-16'>
-                  <TableDemo array={invoices} name="Books"/>
+                  {/* <TableDemo array={invoices} name="Books"/>
                   <TableDemo array={invoices2} name="Films"/>
-                  <TableDemo array={invoices3} name="Musics"/>
+                  <TableDemo array={invoices3} name="Musics"/> */}
+                  <Profile />
                 </div>
               </div>
             </div>

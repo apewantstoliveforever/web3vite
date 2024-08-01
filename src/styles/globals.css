@@ -121,4 +121,8 @@
   min-width: 300px !important;
 }
 
+.transition-colors > span > svg  {
+  color: white
+}
+
 /* Ví dụ về CSS có thể ảnh hưởng đến sự hiển thị của icon */
