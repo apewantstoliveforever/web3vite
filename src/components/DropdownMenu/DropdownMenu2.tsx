@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch"
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../auth/authSlice";
 import { logout } from "../../auth/authSlice";
+import { db, user } from "@/services/gun";
 
 import {
   DropdownMenu,
@@ -32,6 +33,7 @@ export function DropdownMenuCheckboxes({name, name2, name3, name4}) {
 
 
   const handleLogout = () => {
+    user.leave();
     dispatch(logout());
   };
   return (

@@ -119,7 +119,7 @@ const Profile: React.FC = () => {
               : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
           );
         }
-      }, 1000)
+      }, 200)
     );
     // Throttle updates to once per second
   };
