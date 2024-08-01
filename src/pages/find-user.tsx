@@ -78,10 +78,9 @@ const FindUser: React.FC = () => {
 
   const handleSearch = async () => {
     try {
-      console.log("Find user: zzz", findUser);
+      console.log("Find user:", findUser);
       const data = await fetchUserFavorites(findUser);
       if (data) {
-        console.log("User favorites:", data);
         setImages(data.images ? JSON.parse(data.images) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
         setBooks(data.books ? JSON.parse(data.books) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
         setSongs(data.songs ? JSON.parse(data.songs) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));

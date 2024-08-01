@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
 
 // Define types for book and API response
 interface Book {
@@ -13,25 +13,45 @@ interface Book {
 interface ApiResponse {
   docs: Book[];
 }
+interface BookSearchProps {
+  setNewUrl: (url: any) => void;
+}
 
-const BookSearch: React.FC = () => {
-  const [query, setQuery] = useState<string>('');
+const BookSearch: React.FC<BookSearchProps> = ({ setNewUrl }) => {
+  const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<Book[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   const handleSearch = async () => {
     if (!query) return;
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      const response = await axios.get<ApiResponse>(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`);
+      const response = await axios.get<ApiResponse>(
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(
+          query
+        )}&fields=*,availability&limit=5`
+      );
+
       setResults(response.data.docs);
     } catch (err) {
-      setError('Error fetching data');
+      setError("Error fetching data");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSelectBook = (book: Book) => {
+    console.log("Selected book:", book.title);
+    console.log("Selected book:", book.author_name);
+    console.log("Selected book:", book.cover_i);
+    const bookObject = {
+      title: book.title,
+      book: book.author_name,
+      cover: book.cover_i,
+    };
+    setNewUrl(bookObject);
   };
 
   return (
@@ -53,19 +73,36 @@ const BookSearch: React.FC = () => {
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      <div className="mt-4">
+      <div className="mt-4 max-h-[500px] overflow-y-auto bg-white border border-gray-300 rounded">
+        {results.length === 0 && !loading && !error && (
+          <p className="p-2 text-gray-500">No results found</p>
+        )}
         {results.map((book) => (
-          <div key={book.key} className="border p-2 mb-2 rounded">
+          <div
+            key={book.key}
+            className="border-b last:border-b-0 p-2 flex items-start space-x-4 hover:bg-gray-100 cursor-pointer"
+            onClick={() => handleSelectBook(book)}
+          >
             {book.cover_i && (
               <img
                 src={`https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`}
                 alt={book.title}
-                className="w-24 h-32 object-cover"
+                className="w-16 h-24 object-cover"
               />
             )}
-            <h2 className="text-lg font-bold">{book.title}</h2>
-            {book.author_name && <p>by {book.author_name.join(', ')}</p>}
-            {book.first_publish_year && <p>First published in {book.first_publish_year}</p>}
+            <div>
+              <h2 className="text-lg font-bold">{book.title}</h2>
+              {book.author_name && (
+                <p className="text-sm text-gray-600">
+                  by {book.author_name.join(", ")}
+                </p>
+              )}
+              {book.first_publish_year && (
+                <p className="text-sm text-gray-500">
+                  First published in {book.first_publish_year}
+                </p>
+              )}
+            </div>
           </div>
         ))}
       </div>

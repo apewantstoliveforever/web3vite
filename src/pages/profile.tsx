@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { throttle } from "lodash";
 import ReactPlayer from "react-player";
-import { Document, Page } from 'react-pdf';
-import EPUBJS from 'epubjs';
+import { Document, Page } from "react-pdf";
+import EPUBJS from "epubjs";
+import BookSearch from "@/components/book-search";
 
 interface Item {
   id: number;
-  url: string;
+  url: any;
   audioUrl?: string;
 }
 
@@ -157,6 +158,8 @@ const Profile: React.FC = () => {
         videos: setVideos,
       }[type];
 
+      console.log("Type:", type, newUrl);
+
       const items =
         {
           images,
@@ -193,14 +196,9 @@ const Profile: React.FC = () => {
               ) : type === "books" && item.url ? (
                 <>
                   {item.url && (
-                    <Document file={item.url}>
-                      <Page pageNumber={1} width={200} />
-                    </Document>
-                  )}
-                  {item.url && (
                     <div>
                       <img
-                        src={`https://covers.openlibrary.org/b/id/${item.id}-L.jpg`} // Placeholder, adjust as needed
+                        src={`https://covers.openlibrary.org/b/id/${item.url.cover}-M.jpg`}
                         alt={`Book cover ${item.id}`}
                         className="w-200 h-200 object-cover"
                       />
@@ -230,7 +228,8 @@ const Profile: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold mb-8">Profile: {username}</h1>
+      {/* <h1 className="text-4xl font-bold mb-8">Profile: {username}</h1> */}
+
       {renderSection("images", images)}
       {renderSection("books", books)}
       {renderSection("songs", songs)}
@@ -242,6 +241,7 @@ const Profile: React.FC = () => {
             <Button>Edit {editItem.type.slice(0, -1)} URL</Button>
           </DialogTrigger>
           <DialogContent>
+            {editItem.type === "books" && <BookSearch setNewUrl={setNewUrl} />}
             <Input
               type="text"
               value={newUrl}
