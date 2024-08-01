@@ -6,12 +6,13 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined } from "@ant-design/icons";
 import { throttle } from "lodash";
 import ReactPlayer from "react-player";
 import { Document, Page } from "react-pdf";
 import EPUBJS from "epubjs";
 import BookSearch from "@/components/book-search";
+import ArchiveBookSearch from "@/components/archive-book-search";
 
 interface Item {
   id: number;
@@ -82,6 +83,11 @@ const Profile: React.FC = () => {
     null
   );
   const [newUrl, setNewUrl] = useState<string>("");
+
+  const [chooseBook, setChooseBook] = useState<any>(null);
+
+  const [selectedBook, setSelectedBook] = useState<any>(null);
+  const [isDialogBookOpen, setIsDialogBookOpen] = useState<boolean>(false);
 
   const fetchUserData = () => {
     user.get("favourites").on(
@@ -183,6 +189,12 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleChooseBook = (book: any) => {
+    console.log("Choose book:", book);
+    setChooseBook(book);
+    setIsDialogBookOpen(true);
+  };
+
   const renderSection = (type: string, items: Item[]) => (
     <div>
       <div className="text-xl font-semibold mb-4">
@@ -197,7 +209,7 @@ const Profile: React.FC = () => {
               ) : type === "books" && item.url ? (
                 <>
                   {item.url && (
-                    <div>
+                    <div onClick={() => handleChooseBook(item.url)}>
                       <img
                         src={`https://covers.openlibrary.org/b/id/${item.url.cover}-M.jpg`}
                         alt={`Book cover ${item.id}`}
@@ -217,7 +229,10 @@ const Profile: React.FC = () => {
               )}
             </CardHeader>
             <CardContent>
-              <Button className="w-16" onClick={() => handleEdit(type, item.id)}>
+              <Button
+                className="w-16"
+                onClick={() => handleEdit(type, item.id)}
+              >
                 <UploadOutlined />
               </Button>
             </CardContent>
@@ -235,6 +250,17 @@ const Profile: React.FC = () => {
       {renderSection("books", books)}
       {renderSection("songs", songs)}
       {renderSection("videos", videos)}
+
+      {chooseBook && (
+        <Dialog
+          open={isDialogBookOpen}
+          onOpenChange={() => setIsDialogBookOpen(false)}
+        >
+          <DialogContent className="bg-white p-8 rounded-xl shadow-2xl max-w-5xl mx-auto">
+            <ArchiveBookSearch chooseBook={chooseBook} />
+          </DialogContent>
+        </Dialog>
+      )}
 
       {editItem && (
         <Dialog open={true} onOpenChange={() => setEditItem(null)}>

@@ -24,6 +24,7 @@ import { RootState } from "./auth/store";
 import "./App.css";
 import Profile from "./pages/profile";
 import FindUser from "./pages/find-user";
+import TestSong from "./pages/test-song";
 
 // AuthRoute component
 const AuthRoute: React.FC<{
@@ -57,7 +58,9 @@ const routes = [
   { path: "/test", element: <Test />, isProtected: true },
   { path: "/test-peer", element: <TestSimplePeer />, isProtected: true },
   { path: "/test-peer-new", element: <TestNewPeer />, isProtected: true },
+  { path: "/test-song", element: <TestSong />, isProtected: true },
   { path: "/login", element: <LoginRegister />, isProtected: false },
+  {}
 ];
 
 const App: React.FC = () => {

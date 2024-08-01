@@ -13,6 +13,7 @@ interface Book {
 interface ApiResponse {
   docs: Book[];
 }
+
 interface BookSearchProps {
   setNewUrl: (url: any) => void;
 }
@@ -22,6 +23,7 @@ const BookSearch: React.FC<BookSearchProps> = ({ setNewUrl }) => {
   const [results, setResults] = useState<Book[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [selectedBook, setSelectedBook] = useState<string | null>(null);
 
   const handleSearch = async () => {
     if (!query) return;
@@ -29,9 +31,7 @@ const BookSearch: React.FC<BookSearchProps> = ({ setNewUrl }) => {
     setError("");
     try {
       const response = await axios.get<ApiResponse>(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(
-          query
-        )}&fields=*,availability&limit=5`
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&fields=*,availability&limit=5`
       );
 
       setResults(response.data.docs);
@@ -43,9 +43,8 @@ const BookSearch: React.FC<BookSearchProps> = ({ setNewUrl }) => {
   };
 
   const handleSelectBook = (book: Book) => {
-    console.log("Selected book:", book.title);
-    console.log("Selected book:", book.author_name);
-    console.log("Selected book:", book.cover_i);
+    console.log(book);
+    setSelectedBook(book.key);
     const bookObject = {
       title: book.title,
       book: book.author_name,
@@ -80,7 +79,9 @@ const BookSearch: React.FC<BookSearchProps> = ({ setNewUrl }) => {
         {results.map((book) => (
           <div
             key={book.key}
-            className="border-b last:border-b-0 p-2 flex items-start space-x-4 hover:bg-gray-100 cursor-pointer"
+            className={`border-b last:border-b-0 p-2 flex items-start space-x-4 cursor-pointer ${
+              selectedBook === book.key ? 'bg-blue-100' : 'hover:bg-gray-100'
+            }`}
             onClick={() => handleSelectBook(book)}
           >
             {book.cover_i && (
@@ -102,6 +103,14 @@ const BookSearch: React.FC<BookSearchProps> = ({ setNewUrl }) => {
                   First published in {book.first_publish_year}
                 </p>
               )}
+              <a
+                href={`https://openlibrary.org${book.key}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline mt-1 block"
+              >
+                Read more
+              </a>
             </div>
           </div>
         ))}
