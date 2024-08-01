@@ -242,12 +242,14 @@ const Profile: React.FC = () => {
           </DialogTrigger>
           <DialogContent>
             {editItem.type === "books" && <BookSearch setNewUrl={setNewUrl} />}
-            <Input
-              type="text"
-              value={newUrl}
-              onChange={(e) => setNewUrl(e.target.value)}
-              placeholder={`Enter new ${editItem.type.slice(0, -1)} URL`}
-            />
+            {editItem.type !== "books" && (
+              <Input
+                type="text"
+                value={newUrl}
+                onChange={(e) => setNewUrl(e.target.value)}
+                placeholder={`Enter new ${editItem.type.slice(0, -1)} URL`}
+              />
+            )}
             <Button onClick={handleSave} className="mt-2">
               Save
             </Button>
