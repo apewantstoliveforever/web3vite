@@ -63,7 +63,7 @@ const Home: React.FC = () => {
   return (
     <>
       <Layout className="bg-slate-400 h-full ">
-        <Sider
+        {/* <Sider
           breakpoint="lg"
           collapsedWidth="0"
           onBreakpoint={(broken) => {
@@ -74,15 +74,15 @@ const Home: React.FC = () => {
           }}
         >
           <div className="demo-logo-vertical" />
-          {/* <Menu
+          <Menu
             className="bg-slate-300 border-black"
             theme="dark"
             mode="inline"
             defaultSelectedKeys={['1']}
             items={items}
             onClick={handleClick}
-          /> */}
-        </Sider>
+          />
+        </Sider> */}
 
         <Layout className='bg-slate-900 p-2'>
           {activeItem === '1' && (
@@ -97,11 +97,11 @@ const Home: React.FC = () => {
                   borderRadius: borderRadiusLG,
                 }}
               >
-                <div className='w-full flex ml-16'>
+                <div className='w-full flex ml-16 hu'>
                   <CarouselDemo />
-                  <div className='w-full ml-16'>
+                  {/* <div className='w-full ml-16'> */}
                     <Profile />
-                  </div>
+                  {/* </div> */}
                 </div>
               </div>
             </Content>
