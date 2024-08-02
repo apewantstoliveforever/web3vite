@@ -77,7 +77,7 @@ const Leftbar: React.FC = () => {
               }`}
               onClick={() => setActivePath(item.path)}
             >
-              <div className="flex items-center justify-center w-24 h-24 rounded-full border-2 border-blue-500 bg-blue-100">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 bg-white-100">
                 {item.icon}
               </div>
             </Link>

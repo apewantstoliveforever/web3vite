@@ -34,7 +34,7 @@ export function DropdownMenuCheckboxes({name, name2, name3, name4, link}) {
           // checked={showStatusBar}
           // onCheckedChange={setShowStatusBar}
         >
-          <a href="/test" className="text-black">
+          <a href={link} className="text-black">
           {name2}
           </a>
         </DropdownMenuCheckboxItem>

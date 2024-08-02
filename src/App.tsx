@@ -72,7 +72,7 @@ const App: React.FC = () => {
           <div className="App">
             <Header />
             <div className="flex flex-1">
-              <Leftbar /> {/* Add Leftbar */}
+              <Leftbar />
               <div className="flex-1">
                 <Routes>
                   {routes.map(({ path, element, isProtected }) => (

@@ -4,51 +4,37 @@ import { Layout, Menu, theme, Image } from 'antd';
 import CarouselDemo from '../components/Courses/Courses';
 import DropdownMenuCheckboxes from '../components/DropdownMenu/DropdownMenu';
 import Profile from '../pages/profile';
-import Test from './test';
-import Chat from './chat';
+
 
 const { Content, Sider } = Layout;
 
 const iteam2 = [
   {
     icon: (
-      <Image
-        width={50}
-        className="rounded-full"
-        src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-      />
+      <Image width={50} className="rounded-full" src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png" />
     ),
     name: "Profile",
-    link: "/test",
-    icon2: <DropdownMenuCheckboxes name={"Profile"} name2={"Vào Ngay"} name4={"Thoát Group"} name3={"Thêm thành viên"} link="/test" />
+    icon2: <DropdownMenuCheckboxes name={"Profile"} name2={"Vào Ngay"} name4={"Thoát Group"} name3={"Thêm thành viên"} link="" />
   },
   {
     icon: (
-      <Image
-        width={50}
-        className="rounded-full"
-        src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-      />
+      <Image width={50} className="rounded-full" src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png" />
     ),
     name: "Chat",
-    link: "/test",
-    icon2: <DropdownMenuCheckboxes name={"Chat"} name2={"Vào Ngay"} name4={"Thoát Group"} name3={"Thêm thành viên"} link="/test" />
+    icon2: <DropdownMenuCheckboxes name={"Chat"} name2={"Vào Ngay"} name4={"Thoát Group"} name3={"Thêm thành viên"} link="/chat" />
   },
   {
     icon: (
-      <Image
-        width={50}
-        className="rounded-full"
-        src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-      />
+      <Image width={50} className="rounded-full" src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png" />
     ),
-    name: "Server",
-    link: "/test",
-    icon2: <DropdownMenuCheckboxes name={"Groups Chat"} name2={"Vào Ngay"} name4={"Thoát Group"} name3={"Thêm thành viên"} link="/test" />
+    name: "Find",
+    icon2: <DropdownMenuCheckboxes name={"Groups Chat"} name2={"Vào Ngay"} name4={"Thoát Group"} name3={"Thêm thành viên"} link="/find-user" />
   }
 ];
 
 const items = iteam2.map((item, index) => ({
+
+  
   key: String(index + 1),
   icon: (
     <div className="flex items-center">
@@ -88,14 +74,14 @@ const Home: React.FC = () => {
           }}
         >
           <div className="demo-logo-vertical" />
-          <Menu
+          {/* <Menu
             className="bg-slate-300 border-black"
             theme="dark"
             mode="inline"
             defaultSelectedKeys={['1']}
             items={items}
             onClick={handleClick}
-          />
+          /> */}
         </Sider>
 
         <Layout className='bg-slate-900 p-2'>
@@ -121,20 +107,7 @@ const Home: React.FC = () => {
             </Content>
           )}
 
-          {activeItem === '2' && (
-            <Content>
-              {/* <div style={{color: "white"}}>22222222222</div> */}
-              <Chat />
-              </Content>
-          )}
-
-          {activeItem === '3' && (
-            <Content>
-              <div style={{color: "white"}}>
-                <Test />
-              </div>
-            </Content>
-          )}
+      
         </Layout>
       </Layout>
     </>
