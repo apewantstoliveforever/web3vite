@@ -5,6 +5,7 @@ import CarouselDemo from '../components/Courses/Courses';
 import DropdownMenuCheckboxes from '../components/DropdownMenu/DropdownMenu';
 import Profile from '../pages/profile';
 import Test from './test';
+import Chat from './chat';
 
 const { Content, Sider } = Layout;
 
@@ -123,14 +124,14 @@ const Home: React.FC = () => {
           {activeItem === '2' && (
             <Content>
               {/* <div style={{color: "white"}}>22222222222</div> */}
-              <Test />
-            </Content>
+              <Chat />
+              </Content>
           )}
 
           {activeItem === '3' && (
             <Content>
               <div style={{color: "white"}}>
-               33333333333333
+                <Test />
               </div>
             </Content>
           )}

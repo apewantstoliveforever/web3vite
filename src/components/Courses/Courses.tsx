@@ -46,14 +46,11 @@ export function CarouselDemo() {
 
   return (
     <div>
-      <Avatar className="w-24 h-24 rounded-full overflow-hidden">
+      <Avatar className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-300">
         <AvatarImage
           onClick={handleShowChangeAvatar}
           className="w-full h-full object-cover cursor-pointer"
-          src={
-            avatar ||
-            ""
-          }
+          src={avatar || "/profile_default.png"}
         />
 
         <AvatarFallback>CN</AvatarFallback>
@@ -67,7 +64,6 @@ export function CarouselDemo() {
         className="hidden"
       />
       <InputForm />
-
     </div>
   );
 }
