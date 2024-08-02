@@ -10,6 +10,7 @@ import { Document, Page } from "react-pdf";
 import EPUBJS from "epubjs";
 
 import { fetchUserFavorites } from "@/services/get-user-data.service";
+import { db } from "@/services/gun";
 
 interface Item {
   id: number;
@@ -76,36 +77,66 @@ const FindUser: React.FC = () => {
     }
   }, [username, password]);
 
-  const handleSearch = async () => {
-    try {
-      console.log("Find user:", findUser);
-      const data = await fetchUserFavorites(findUser);
-      if (data) {
-        setImages(
-          data.images
-            ? JSON.parse(data.images)
-            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-        );
-        setBooks(
-          data.books
-            ? JSON.parse(data.books)
-            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-        );
-        setSongs(
-          data.songs
-            ? JSON.parse(data.songs)
-            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-        );
-        setVideos(
-          data.videos
-            ? JSON.parse(data.videos)
-            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching user favorites:", error);
-    }
+  const handleNewFindUser = async (user_find: string) => {
+    db.get(`~@${findUser}`).off();
+    setFindUser(user_find)
   };
+
+  const handleSearch = async () => {
+    //off the on last findUser
+    // db.get(`~@${findUser}`).off();
+    // console.log("Find user:", findUser);
+    db.get(`~@${findUser}`).on((userData: any) => {
+      const keys = Object.keys(userData["_"][">"]);
+      let pending = keys.length;
+
+      keys.forEach((key) => {
+        db.get(key)
+          .get("favourites")
+          .once((data: any) => {
+            const result = {
+              images: "",
+              books: "",
+              songs: "",
+              videos: "",
+            };
+            if (data) {
+              result.images = data.images || "";
+              result.books = data.books || "";
+              result.songs = data.songs || "";
+              result.videos = data.videos || "";
+              setImages(
+                data.images
+                  ? JSON.parse(data.images)
+                  : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+              );
+              setBooks(
+                data.books
+                  ? JSON.parse(data.books)
+                  : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+              );
+              setSongs(
+                data.songs
+                  ? JSON.parse(data.songs)
+                  : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+              );
+              setVideos(
+                data.videos
+                  ? JSON.parse(data.videos)
+                  : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+              );
+            }
+          });
+      });
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      console.log("Find user:", findUser);
+      db.get(`~@${findUser}`).off();
+    };
+  }, [findUser]);
 
   const handleAddFriend = async () => {
     console.log("Add friend:", findUser);
@@ -157,7 +188,7 @@ const FindUser: React.FC = () => {
         <Input
           type="text"
           value={findUser}
-          onChange={(e) => setFindUser(e.target.value)}
+          onChange={(e) => handleNewFindUser(e.target.value)}
           placeholder="Search user"
           className="mr-2"
         />
