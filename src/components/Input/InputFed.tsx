@@ -14,6 +14,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
+//import selector to get username from redux
+import { useSelector } from "react-redux";
+import { RootState } from "../../auth/store";
+
 const FormSchema = z.object({
   username: z.string().min(2, {
     message: "Username must be at least 2 characters.",
@@ -22,6 +26,8 @@ const FormSchema = z.object({
 
 export function InputForm() {
   const [showSubmit, setShowSubmit] = useState(false)
+
+  const username = useSelector((state: RootState) => state.auth.username);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -45,7 +51,7 @@ export function InputForm() {
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>What's on your mind, Hoài?</FormLabel>
+              <FormLabel>What's on your mind, {username}?</FormLabel>
               <FormControl>
                 <Input placeholder="Input" {...field} />
               </FormControl>

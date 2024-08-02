@@ -29,5 +29,5 @@ user.get('alias').on((data: string) => {
 db.on('auth', async () => {
     const alias = await user.get('alias');
     username.set(alias);
-    console.log('User Authenticated');
+    console.log('User Authenticated zz');
 });

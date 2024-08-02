@@ -2,10 +2,15 @@ import React, { useState, useRef, useEffect } from "react";
 import { user } from "@/services/gun";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import InputForm from "../Input/InputFed";
+//import selector to get username from redux
+import { useSelector } from "react-redux";
+import { RootState } from "../../auth/store";
 
 export function CarouselDemo() {
   const [avatar, setAvatar] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const username = useSelector((state: RootState) => state.auth.username);
   const handleShowChangeAvatar = () => {
     // setShowChangeAvatar(!showChangeAvatar);
     if (fileInputRef.current) {

@@ -19,18 +19,18 @@ const Header: React.FC = () => {
   return (
     <div>
       <nav>
-        <ul className="flex items-center justify-between p-4">
+        <ul className="flex items-center justify-between">
           <li>
             <a href="/">
               <img
-                className="object-fill w-32 h-32"
+                className="object-fill w-12 h-12"
                 src={imgLogo}
                 alt="Logo"
               />
             </a>
           </li>
-          <li className="text-4xl">DISCORD WEB3</li>
-          <li className="text-4xl">
+          <li className="text-1xl">DISCORD WEB3</li>
+          <li className="text-1xl">
                 <DropdownMenuCheckboxes2
                   name={username}
                   name2={"Trực tuyến"}

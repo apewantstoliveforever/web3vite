@@ -6,8 +6,8 @@ import { RootState } from "../auth/store";
 import { Card, CardHeader } from "@/components/ui/card";
 import { user } from "@/services/gun";
 import ReactPlayer from "react-player";
-import { Document, Page } from 'react-pdf';
-import EPUBJS from 'epubjs';
+import { Document, Page } from "react-pdf";
+import EPUBJS from "epubjs";
 
 import { fetchUserFavorites } from "@/services/get-user-data.service";
 
@@ -81,21 +81,42 @@ const FindUser: React.FC = () => {
       console.log("Find user:", findUser);
       const data = await fetchUserFavorites(findUser);
       if (data) {
-        setImages(data.images ? JSON.parse(data.images) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
-        setBooks(data.books ? JSON.parse(data.books) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
-        setSongs(data.songs ? JSON.parse(data.songs) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
-        setVideos(data.videos ? JSON.parse(data.videos) : Array.from({ length: 5 }, (_, id) => ({ id, url: "" })));
+        setImages(
+          data.images
+            ? JSON.parse(data.images)
+            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+        );
+        setBooks(
+          data.books
+            ? JSON.parse(data.books)
+            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+        );
+        setSongs(
+          data.songs
+            ? JSON.parse(data.songs)
+            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+        );
+        setVideos(
+          data.videos
+            ? JSON.parse(data.videos)
+            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+        );
       }
     } catch (error) {
       console.error("Error fetching user favorites:", error);
     }
   };
 
+  const handleAddFriend = async () => {
+    console.log("Add friend:", findUser);
+  };
+
   const renderSection = (type: string, items: Item[]) => (
     <div>
       <div className="text-xl font-semibold mb-4">
         {type.charAt(0).toUpperCase() + type.slice(1)}
-      </div>      <div className="grid grid-cols-5 gap-4">
+      </div>{" "}
+      <div className="grid grid-cols-5 gap-4">
         {items.map((item) => (
           <Card key={item.id}>
             <CardHeader>
@@ -142,6 +163,8 @@ const FindUser: React.FC = () => {
         />
         <Button onClick={handleSearch}>Search</Button>
       </div>
+      <Button onClick={handleAddFriend}>Add Friend</Button>
+
       {renderSection("images", images)}
       {renderSection("books", books)}
       {renderSection("songs", songs)}

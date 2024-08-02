@@ -25,6 +25,7 @@ import "./App.css";
 import Profile from "./pages/profile";
 import FindUser from "./pages/find-user";
 import TestSong from "./pages/test-song";
+import Leftbar from "./layouts/left-bar";
 
 // AuthRoute component
 const AuthRoute: React.FC<{
@@ -60,7 +61,7 @@ const routes = [
   { path: "/test-peer-new", element: <TestNewPeer />, isProtected: true },
   { path: "/test-song", element: <TestSong />, isProtected: true },
   { path: "/login", element: <LoginRegister />, isProtected: false },
-  {}
+  {},
 ];
 
 const App: React.FC = () => {
@@ -70,18 +71,23 @@ const App: React.FC = () => {
         <Router>
           <div className="App">
             <Header />
-            <div>
-              <Routes>
-                {routes.map(({ path, element, isProtected }) => (
-                  <Route
-                    key={path}
-                    path={path}
-                    element={
-                      <AuthRoute isProtected={isProtected}>{element}</AuthRoute>
-                    }
-                  />
-                ))}
-              </Routes>
+            <div className="flex flex-1">
+              <Leftbar /> {/* Add Leftbar */}
+              <div className="flex-1">
+                <Routes>
+                  {routes.map(({ path, element, isProtected }) => (
+                    <Route
+                      key={path}
+                      path={path}
+                      element={
+                        <AuthRoute isProtected={isProtected}>
+                          {element}
+                        </AuthRoute>
+                      }
+                    />
+                  ))}
+                </Routes>
+              </div>
             </div>
             <Toaster />
             <Footer />
