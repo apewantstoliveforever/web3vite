@@ -91,8 +91,8 @@ const Profile: React.FC = () => {
 
   const fetchUserData = () => {
     user.get("favourites").on(
-      throttle((data: any) => {
-        console.log("Favourites Data:", data);
+      ((data: any) => {
+        console.log("Favourites Dataw:", data);
         if (data) {
           setImages(
             data.images
@@ -119,16 +119,16 @@ const Profile: React.FC = () => {
               : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
           );
         }
-      }, 200)
+      })
     );
     // Throttle updates to once per second
   };
 
   useEffect(() => {
     if (user.is) {
-      user.get("alias").once(() => {
+      // user.get("alias").once(() => {
         fetchUserData();
-      });
+      // });
     } else if (username && password) {
       user.auth(username, password, (ack: any) => {
         if (ack.err) {
