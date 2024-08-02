@@ -41,6 +41,20 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ url }) => {
   );
 };
 
+
+const convertToBase64 = (image: File) => {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+    reader.onerror = (error) => {
+      reject(error);
+    };
+    reader.readAsDataURL(image);
+  });
+};
+
 const VideoPlayer: React.FC<{ url: string }> = ({ url }) => (
   <ReactPlayer
     url={url}
@@ -57,6 +71,20 @@ const FindUser: React.FC = () => {
   const [books, setBooks] = useState<Item[]>([]);
   const [songs, setSongs] = useState<Item[]>([]);
   const [videos, setVideos] = useState<Item[]>([]);
+
+
+  const [avatar, setAvatar] = useState<any>(null);
+
+  useEffect(() => {
+    user
+      .get("profile")
+      .get("avatar")
+      .on((avatar: any) => {
+        setAvatar(avatar);
+      });
+  }, []);
+
+  
 
   const dispatch = useDispatch();
   const username = useSelector((state: RootState) => state.auth.username);
@@ -80,6 +108,9 @@ const FindUser: React.FC = () => {
   const handleNewFindUser = async (user_find: string) => {
     db.get(`~@${findUser}`).off();
     setFindUser(user_find)
+
+
+
   };
 
   const handleSearch = async () => {
@@ -91,6 +122,15 @@ const FindUser: React.FC = () => {
       let pending = keys.length;
 
       keys.forEach((key) => {
+
+        db.get(key)
+        .get("profile")
+        .get("avatar")
+        .once((data: any) => {
+          setAvatar(data)
+          console.log(data)
+        });
+
         db.get(key)
           .get("favourites")
           .once((data: any) => {
@@ -105,6 +145,7 @@ const FindUser: React.FC = () => {
               result.books = data.books || "";
               result.songs = data.songs || "";
               result.videos = data.videos || "";
+
               setImages(
                 data.images
                   ? JSON.parse(data.images)
@@ -137,6 +178,9 @@ const FindUser: React.FC = () => {
       db.get(`~@${findUser}`).off();
     };
   }, [findUser]);
+
+
+
 
   const handleAddFriend = async () => {
     console.log("Add friend:", findUser);
@@ -183,6 +227,8 @@ const FindUser: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <img src={avatar} />
+
       <h1 className="text-4xl font-bold mb-8">Find User</h1>
       <div className="mb-4">
         <Input
