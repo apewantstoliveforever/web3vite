@@ -1,16 +1,24 @@
 // features/auth/authSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+
+interface Notification {
+  title: string;
+  body: string;
+}
+
 interface AuthState {
   isAuthenticated: boolean;
   username: string | null;
   encryptedPassword: string | null;
+  notifications: Notification[];
 }
 
 const initialState: AuthState = {
   isAuthenticated: false,
   username: null,
   encryptedPassword: null,
+  notifications: []
 };
 
 const authSlice = createSlice({
@@ -27,6 +35,10 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.username = null;
       state.encryptedPassword = null;
+    },
+    addNotification: (state, action: PayloadAction<Notification>) => {
+      console.log('Adding notification:', action.payload);
+      state.notifications.push(action.payload);
     },
   },
 });

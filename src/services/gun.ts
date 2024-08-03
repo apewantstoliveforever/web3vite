@@ -13,7 +13,13 @@ import "gun/axe";
 export const db = Gun({
   radisk: true, // Enable Radisk
   localStorage: false, // Disable localStorage to avoid conflicts
-  peers: ["http://localhost:8765/gun", "https://wrongly-viable-bird.ngrok-free.app/gun",],
+  peers: [
+    "http://localhost:8765/gun",
+    "https://fuzzy-puma-6.telebit.io/gun",
+    "https://wrongly-viable-bird.ngrok-free.app/gun",
+    "https://gundb-multiserver.glitch.me/openhouse",
+    "https://wrongly-viable-bird.ngrok-free.app/gun",
+  ],
 });
 
 export const user = db.user().recall({ sessionStorage: true });

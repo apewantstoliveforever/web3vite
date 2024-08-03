@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -6,9 +6,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor } from "./auth/store";
 
 import Home from "./pages/home";
 import Chat from "./pages/chat";
@@ -26,6 +23,11 @@ import Profile from "./pages/profile";
 import FindUser from "./pages/find-user";
 import TestSong from "./pages/test-song";
 import Leftbar from "./layouts/left-bar";
+
+//import dispatch to get friend request from redux
+import { useDispatch } from "react-redux";
+
+import { db, sea, user } from "./services/gun";
 
 // AuthRoute component
 const AuthRoute: React.FC<{
@@ -65,36 +67,67 @@ const routes = [
 ];
 
 const App: React.FC = () => {
+  const countNotifications = useSelector(
+    (state: RootState) => state.auth.notifications.length
+  );
+  const notifications = useSelector(
+    (state: RootState) => state.auth.notifications
+  );
+  const dispatch = useDispatch();
+  useEffect(() => {
+    //listen if have a friend request
+    if (user.is) {
+      console.log("user.is.pub", user.is.pub);
+      const pub = user.is.pub;
+      // console.log("username", pub);
+      db.get(`friend-requestsa-${pub}`).map().on((data: any) => {
+        //check if its new notification
+        const isExist = notifications.some(
+          (notification) => notification.body === data.from
+        );
+        if (!isExist) {
+          const newRequest = {
+            title: "Friend Request",
+            body: data.from,
+          };
+
+          dispatch({
+            type: "ADD_NOTIFICATION",
+            payload: newRequest,
+          });
+        }
+      });
+    }
+    return () => {
+      // if (user.is)
+        // db.get(`friend-requests-${user.is.alias}`).off;
+    };
+  }, []);
+
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <Router>
-          <div className="App">
-            <Header />
-            <div className="flex flex-1">
-              <Leftbar />
-              <div className="flex-1">
-                <Routes>
-                  {routes.map(({ path, element, isProtected }) => (
-                    <Route
-                      key={path}
-                      path={path}
-                      element={
-                        <AuthRoute isProtected={isProtected}>
-                          {element}
-                        </AuthRoute>
-                      }
-                    />
-                  ))}
-                </Routes>
-              </div>
-            </div>
-            <Toaster />
-            <Footer />
+    <Router>
+      <div className="App">
+        <Header />
+        <div className="flex flex-1">
+          <Leftbar />
+          <div className="flex-1">
+            <Routes>
+              {routes.map(({ path, element, isProtected }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <AuthRoute isProtected={isProtected}>{element}</AuthRoute>
+                  }
+                />
+              ))}
+            </Routes>
           </div>
-        </Router>
-      </PersistGate>
-    </Provider>
+        </div>
+        <Toaster />
+        <Footer />
+      </div>
+    </Router>
   );
 };
 

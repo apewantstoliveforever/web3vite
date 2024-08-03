@@ -10,7 +10,8 @@ import { Document, Page } from "react-pdf";
 import EPUBJS from "epubjs";
 
 import { fetchUserFavorites } from "@/services/get-user-data.service";
-import { db } from "@/services/gun";
+import { db, sea } from "@/services/gun";
+import iris from "iris-lib";
 
 interface Item {
   id: number;
@@ -41,20 +42,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ url }) => {
   );
 };
 
-
-const convertToBase64 = (image: File) => {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      resolve(reader.result as string);
-    };
-    reader.onerror = (error) => {
-      reject(error);
-    };
-    reader.readAsDataURL(image);
-  });
-};
-
 const VideoPlayer: React.FC<{ url: string }> = ({ url }) => (
   <ReactPlayer
     url={url}
@@ -72,7 +59,6 @@ const FindUser: React.FC = () => {
   const [songs, setSongs] = useState<Item[]>([]);
   const [videos, setVideos] = useState<Item[]>([]);
 
-
   const [avatar, setAvatar] = useState<any>(null);
 
   useEffect(() => {
@@ -83,8 +69,6 @@ const FindUser: React.FC = () => {
         setAvatar(avatar);
       });
   }, []);
-
-  
 
   const dispatch = useDispatch();
   const username = useSelector((state: RootState) => state.auth.username);
@@ -107,83 +91,106 @@ const FindUser: React.FC = () => {
 
   const handleNewFindUser = async (user_find: string) => {
     db.get(`~@${findUser}`).off();
-    setFindUser(user_find)
-
-
-
+    setFindUser(user_find);
   };
 
   const handleSearch = async () => {
     //off the on last findUser
     // db.get(`~@${findUser}`).off();
     // console.log("Find user:", findUser);
+
     db.get(`~@${findUser}`).on((userData: any) => {
       const keys = Object.keys(userData["_"][">"]);
-      let pending = keys.length;
-
-      keys.forEach((key) => {
-
-        db.get(key)
+      const key = keys[0];
+      db.get(key)
         .get("profile")
         .get("avatar")
-        .once((data: any) => {
-          setAvatar(data)
-          console.log(data)
+        .on((data: any) => {
+          setAvatar(data);
+          // console.log(data);
         });
 
-        db.get(key)
-          .get("favourites")
-          .once((data: any) => {
-            const result = {
-              images: "",
-              books: "",
-              songs: "",
-              videos: "",
-            };
-            if (data) {
-              result.images = data.images || "";
-              result.books = data.books || "";
-              result.songs = data.songs || "";
-              result.videos = data.videos || "";
+      db.get(key)
+        .get("favourites")
+        .on((data: any) => {
+          const result = {
+            images: "",
+            books: "",
+            songs: "",
+            videos: "",
+          };
+          if (data) {
+            result.images = data.images || "";
+            result.books = data.books || "";
+            result.songs = data.songs || "";
+            result.videos = data.videos || "";
 
-              setImages(
-                data.images
-                  ? JSON.parse(data.images)
-                  : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-              );
-              setBooks(
-                data.books
-                  ? JSON.parse(data.books)
-                  : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-              );
-              setSongs(
-                data.songs
-                  ? JSON.parse(data.songs)
-                  : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-              );
-              setVideos(
-                data.videos
-                  ? JSON.parse(data.videos)
-                  : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-              );
-            }
-          });
-      });
+            setImages(
+              data.images
+                ? JSON.parse(data.images)
+                : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+            );
+            setBooks(
+              data.books
+                ? JSON.parse(data.books)
+                : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+            );
+            setSongs(
+              data.songs
+                ? JSON.parse(data.songs)
+                : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+            );
+            setVideos(
+              data.videos
+                ? JSON.parse(data.videos)
+                : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+            );
+          }
+        });
     });
   };
 
   useEffect(() => {
     return () => {
-      console.log("Find user:", findUser);
+      // console.log("Find user:", findUser);
       db.get(`~@${findUser}`).off();
     };
   }, [findUser]);
 
-
-
-
   const handleAddFriend = async () => {
     console.log("Add friend:", findUser);
+    db.get(`~@${findUser}`).on(async (userData: any) => {
+      const keys = Object.keys(userData["_"][">"]);
+      const key = keys[0].slice(1);
+      console.log("Key:", key);
+      //remove first character of key
+
+      db.get(`friend-requestsa-${key}`).set({ from: key, status: "pending", is_read: false });
+      console.log("Friend request sent");
+    });
+
+  };
+
+  const AliceAddTest1 = async () => {
+    // Generate keys for the participants
+    const Alice = await sea.pair(); // Alice, she decides to host this collection of links
+    const Bob = await sea.pair(); // Bob joins her initiative
+
+    // Begin with a list of verified users' public keys
+    const users = [Alice.pub, Bob.pub];
+
+    // Generate a new key pair for the room
+    const room = await sea.pair();
+
+    // Authenticate with the room key pair to set it up
+    db.user().auth(room, async () => {
+      let enc = await sea.encrypt(room, Alice);
+      db.user().get("host").get(Alice.pub).put(enc);
+      users.forEach(async (pub) => {
+        const cert = await sea.certify(pub, { "*": "#links", "+": "*" }, room);
+        db.user().get("certs").get("links").get(pub).put(cert);
+      });
+    });
   };
 
   const renderSection = (type: string, items: Item[]) => (
@@ -241,6 +248,7 @@ const FindUser: React.FC = () => {
         <Button onClick={handleSearch}>Search</Button>
       </div>
       <Button onClick={handleAddFriend}>Add Friend</Button>
+      <Button onClick={AliceAddTest1}>Alice Add Test1</Button>
 
       {renderSection("images", images)}
       {renderSection("books", books)}

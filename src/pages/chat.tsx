@@ -26,7 +26,7 @@ const Chat: React.FC = () => {
     }
   }, [isMobileView, selectedFriend]);
 
-  const friends = ["Friend 1", "Friend 2", "Friend 3"];
+  const friends = ["watthefman", "1234567890aaa4", "Friend 3"];
 
   return (
     <div className={`flex h-screen ${isMobileView ? 'flex-col' : 'flex-row'}`}>
