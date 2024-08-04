@@ -9,7 +9,7 @@ import {
 import PropTypes from "prop-types";
 import { Button } from "../ui/button";
 import { ArrowLeft, Camera, Monitor } from "lucide-react";
-import VideoStream from "./video-stream";
+// import VideoStream from "./video-stream";
 
 import { useSelector } from "react-redux";
 import { db, user } from "@/services/gun";
@@ -26,12 +26,12 @@ interface Message {
   signal?: string;
 }
 
-interface ChatBoxProps {
+interface ChatServerProps {
   selectedFriend: string | null;
   onBack: () => void;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ selectedFriend, onBack }) => {
+const ChatServer: React.FC<ChatServerProps> = ({ selectedFriend, onBack }) => {
   const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentRoom, setCurrentRoom] = useState<string>("");
@@ -280,7 +280,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedFriend, onBack }) => {
       <CardContent className="flex-1 flex flex-col overflow-hidden relative">
         {localStream && (
           <div className="absolute bottom-4 right-4 w-100 h-100">
-            <VideoStream stream={localStream} onStop={handleStopSharing} />
+            {/* <VideoStream stream={localStream} onStop={handleStopSharing} /> */}
           </div>
         )}
         {/* Hiển thị tin nhắn */}
@@ -360,9 +360,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedFriend, onBack }) => {
   );
 };
 
-ChatBox.propTypes = {
+ChatServer.propTypes = {
   selectedFriend: PropTypes.string,
   onBack: PropTypes.func.isRequired,
 };
 
-export default ChatBox;
+export default ChatServer;

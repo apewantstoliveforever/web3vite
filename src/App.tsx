@@ -28,6 +28,9 @@ import Leftbar from "./layouts/left-bar";
 import { useDispatch } from "react-redux";
 
 import { db, sea, user } from "./services/gun";
+import FriendList from "./pages/friend-list";
+import Server from "./pages/server";
+import Rightbar from "./layouts/right-bar";
 
 // AuthRoute component
 const AuthRoute: React.FC<{
@@ -53,6 +56,7 @@ const AuthRoute: React.FC<{
 const routes = [
   { path: "/", element: <Home />, isProtected: true },
   { path: "/profile", element: <Profile />, isProtected: true },
+  { path: "/friend-list", element: <FriendList />, isProtected: true },
   { path: "/find-user", element: <FindUser />, isProtected: true },
   { path: "/chat", element: <Chat />, isProtected: true },
   { path: "/chat1", element: <Chat />, isProtected: true },
@@ -63,7 +67,7 @@ const routes = [
   { path: "/test-peer-new", element: <TestNewPeer />, isProtected: true },
   { path: "/test-song", element: <TestSong />, isProtected: true },
   { path: "/login", element: <LoginRegister />, isProtected: false },
-  {},
+  { path: "/server/:id", element: <Server />, isProtected: true },
 ];
 
 const App: React.FC = () => {
@@ -74,33 +78,54 @@ const App: React.FC = () => {
     (state: RootState) => state.auth.notifications
   );
   const dispatch = useDispatch();
+
+  const joinedServers = [
+    {
+      name: "test-1",
+      image: "https://via.placeholder.com/150",
+    },
+    {
+      name: "test-2",
+      image: "https://via.placeholder.com/150",
+    },
+    {
+      name: "test-3",
+      image: "https://via.placeholder.com/150",
+    },
+    {
+      name: "test-4",
+      image: "https://via.placeholder.com/150",
+    },
+  ];
   useEffect(() => {
     //listen if have a friend request
     if (user.is) {
       console.log("user.is.pub", user.is.pub);
       const pub = user.is.pub;
       // console.log("username", pub);
-      db.get(`friend-requestsa-${pub}`).map().on((data: any) => {
-        //check if its new notification
-        const isExist = notifications.some(
-          (notification) => notification.body === data.from
-        );
-        if (!isExist) {
-          const newRequest = {
-            title: "Friend Request",
-            body: data.from,
-          };
+      db.get(`friend-requestsa-${pub}`)
+        .map()
+        .on((data: any) => {
+          //check if its new notification
+          const isExist = notifications.some(
+            (notification) => notification.body === data.from
+          );
+          if (!isExist) {
+            const newRequest = {
+              title: "Friend Request",
+              body: data.from,
+            };
 
-          dispatch({
-            type: "ADD_NOTIFICATION",
-            payload: newRequest,
-          });
-        }
-      });
+            dispatch({
+              type: "ADD_NOTIFICATION",
+              payload: newRequest,
+            });
+          }
+        });
     }
     return () => {
       // if (user.is)
-        // db.get(`friend-requests-${user.is.alias}`).off;
+      // db.get(`friend-requests-${user.is.alias}`).off;
     };
   }, []);
 
@@ -109,7 +134,7 @@ const App: React.FC = () => {
       <div className="App">
         <Header />
         <div className="flex flex-1">
-          <Leftbar />
+          <Leftbar joinedServers={joinedServers} />
           <div className="flex-1">
             <Routes>
               {routes.map(({ path, element, isProtected }) => (
@@ -123,6 +148,7 @@ const App: React.FC = () => {
               ))}
             </Routes>
           </div>
+          {/* <Rightbar /> */}
         </div>
         <Toaster />
         <Footer />

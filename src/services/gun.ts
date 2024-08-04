@@ -1,6 +1,8 @@
 import Gun from "gun";
 import "gun/sea";
 import "gun/axe";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../auth/store';
 // import "gun/lib/radisk";
 // import "gun/lib/radix";
 // import "gun/lib/store";
@@ -22,6 +24,11 @@ export const db = Gun({
   ],
 });
 
-export const user = db.user().recall({ sessionStorage: true });
 
+
+export const user = db.user().recall({ sessionStorage: true });
+user.get('alias').on((data: string) => {
+  // const dispatch = useDispatch();
+  // dispatch({ type: "SET_ALIAS", payload: data });
+});
 export const sea = Gun.SEA;

@@ -29,13 +29,20 @@ const Chat: React.FC = () => {
   const friends = ["watthefman", "1234567890aaa4", "Friend 3"];
 
   return (
-    <div className={`flex h-screen ${isMobileView ? 'flex-col' : 'flex-row'}`}>
-      <div className={`transition-transform ${showChatBox ? "hidden" : "block"} ${isMobileView ? "w-full" : "w-1/4"} bg-gray-200`}>
+    <div className={`flex h-screen ${isMobileView ? "flex-col" : "flex-row"} w-full`}>
+      <div
+        className={`${
+          isMobileView && showChatBox ? "hidden" : ""
+        } ${isMobileView ? "w-full top-0 left-0 h-full z-10 bg-gray-200" : "w-1/4 bg-gray-200"}`}
+      >
         <ChatList friends={friends} onSelectFriend={setSelectedFriend} />
       </div>
 
-      {/* Chat box */}
-      <div className={`transition-transform ${!isMobileView || showChatBox ? "block" : "hidden"} ${isMobileView ? "w-full" : "w-3/4"} bg-white`}>
+      <div
+        className={`transition-transform ${
+          isMobileView ? (showChatBox ? "translate-x-0" : "translate-x-full") : ""
+        } ${isMobileView ? "w-full fixed top-0 left-0 h-full z-20 bg-white" : "w-3/4 bg-white"}`}
+      >
         {selectedFriend === null ? (
           <div className="text-center text-gray-500">Select a friend to start chatting</div>
         ) : (

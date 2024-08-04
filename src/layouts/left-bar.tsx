@@ -22,12 +22,19 @@ import {
   XCircle,
   Edit,
   Trash,
+  ContactRound,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area"; // Adjust the import path if necessary
 
+interface Server {
+  name: string;
+  image: string;
+}
+
+interface leftbarProps {
+  joinedServers: Server[];
+}
 const linkItems = [
-  { label: "Find User", icon: <Search size={32} />, path: "/find-user" },
-  { label: "Chat", icon: <MessageSquare size={32} />, path: "/chat" },
   { label: "Test", icon: <FileText size={32} />, path: "/test" },
   { label: "Calendar", icon: <Calendar size={32} />, path: "/calendar" },
   { label: "Map", icon: <MapPin size={32} />, path: "/map" },
@@ -46,7 +53,7 @@ const linkItems = [
   { label: "Trash", icon: <Trash size={32} />, path: "/trash" },
 ];
 
-const Leftbar: React.FC = () => {
+const Leftbar: React.FC<leftbarProps> = ({ joinedServers }) => {
   const location = useLocation();
   const [activePath, setActivePath] = useState(location.pathname);
 
@@ -57,23 +64,42 @@ const Leftbar: React.FC = () => {
   return (
     <div className="bg-gray-800 p-1 w-32 h-full border-r border-gray-700 flex flex-col">
       <div className="flex items-center justify-center mb-4">
-        <Link to="/" className="flex items-center justify-center">
-          <img
-            src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-            alt="Profile"
-            className="w-24 h-24 rounded-full"
-          />
-        </Link>
+        <div className="flex flex-col items-center justify-center p-2">
+          <Link to="/" className="flex items-center justify-center">
+            <img
+              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+              alt="Profile"
+              className="w-24 h-24 rounded-full"
+            />
+          </Link>
+          <Link to="/friend-list"  className='flex items-center space-x-2 p-2 rounded-lg'>
+            <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 bg-white-100">
+              <ContactRound />
+            </div>
+          </Link>
+          <Link to="/find-user"  className='flex items-center space-x-2 p-2 rounded-lg'>
+            <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 bg-white-100">
+              <Search />
+            </div>
+          </Link>
+          <Link to="/chat"  className='flex items-center space-x-2 p-2 rounded-lg'>
+            <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 bg-white-100">
+              <MessageSquare />
+            </div>
+          </Link>
+        </div>
       </div>
 
       <ScrollArea className="h-[80vh] w-32 rounded-md border">
-      <div className="flex flex-col items-center justify-center p-2">
-      {linkItems.map((item) => (
+        <div className="flex flex-col items-center justify-center p-2">
+          {/* {linkItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
               className={`flex items-center space-x-2 p-2 rounded-lg ${
-                activePath === item.path ? "bg-blue-500 text-white" : "text-gray-300 hover:bg-blue-700 hover:text-white"
+                activePath === item.path
+                  ? "bg-blue-500 text-white"
+                  : "text-gray-300 hover:bg-blue-700 hover:text-white"
               }`}
               onClick={() => setActivePath(item.path)}
             >
@@ -81,7 +107,25 @@ const Leftbar: React.FC = () => {
                 {item.icon}
               </div>
             </Link>
-          ))}
+          ))} */}
+          {
+            joinedServers.map((server) => (
+              <Link
+                key={server.name}
+                to={`/server/${server.name}`}
+                className={`flex items-center space-x-2 p-2 rounded-lg ${
+                  activePath === `/server/${server.name}`
+                    ? "bg-blue-500 text-white"
+                    : "text-gray-300 hover:bg-blue-700 hover:text-white"
+                }`}
+                onClick={() => setActivePath(`/server/${server.name}`)}
+              >
+                <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 bg-white-100">
+                  <img src={server.image} alt={server.name} className="w-8 h-8" />
+                </div>
+              </Link>
+            ))
+          }
         </div>
       </ScrollArea>
     </div>

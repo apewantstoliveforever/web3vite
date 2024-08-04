@@ -162,10 +162,11 @@ const FindUser: React.FC = () => {
     db.get(`~@${findUser}`).on(async (userData: any) => {
       const keys = Object.keys(userData["_"][">"]);
       const key = keys[0].slice(1);
-      console.log("Key:", key);
       //remove first character of key
-
-      db.get(`friend-requestsa-${key}`).set({ from: key, status: "pending", is_read: false });
+      console.log("Key:", key);
+      console.log("Username:", findUser);
+      //check if friend request already sent
+      db.get(`friend-requestsa12-${findUser}`).set({ from_user: username, from: key, status: "pending", is_read: false });
       console.log("Friend request sent");
     });
 
