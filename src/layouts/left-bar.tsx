@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area"; // Adjust the import path if necessary
 
+
+import imgLog from '../assets/discord-round-black-icon.webp'
 interface Server {
   name: string;
   image: string;
@@ -63,36 +65,36 @@ const Leftbar: React.FC<LeftbarProps> = ({ joinedServers }) => {
   }, [location.pathname]);
 
   return (
-    <div className="bg-gray-800 w-32 h-full border-r border-gray-700 flex flex-col sm:w-24">
+    <div className="w-14 bg-gray-800 h-full border-r border-gray-700 flex flex-col">
       <div className="flex items-center justify-center mb-4">
         <div className="flex flex-col items-center justify-center p-2 ">
           <Link to="/" className="flex items-center justify-center">
             <img
-              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+              src={imgLog}
               alt="Profile"
-              className="w-24 h-24 rounded-full md:w-24 md:h-24 sm:w-16 sm:h-16"
+              className="w-12 h-auto rounded-full"
             />
           </Link>
           <Link to="/find-user" className="flex items-center space-x-2 p-2 rounded-lg">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 bg-white-100">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-red-500 bg-white-100">
               <Search />
             </div>
           </Link>
           <Link to="/map" className="flex items-center space-x-2 p-2 rounded-lg">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 bg-white-100">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-red-500 bg-white-100">
               <MapPin />
             </div>
           </Link>
         </div>
       </div>
 
-      <ScrollArea className="h-[80vh] w-full border-t">
-        <div className="flex flex-col items-center justify-center p-2">
-          {joinedServers.map((server) => (
+      <ScrollArea className="h-[80vh] w-full border-t w-14">
+        <div className="flex flex-col items-center justify-center p-2 w-14">
+        {joinedServers.map((server) => (
             <Link
               key={server.name}
               to={`/server/${server.name}`}
-              className={`flex items-center p-1 rounded-lg ${
+              className={`flex items-center p-1 rounded-lg w-14 h-12 mt-3 ${
                 activePath === `/server/${server.name}`
                   ? "bg-blue-500 text-white"
                   : "text-gray-300 hover:bg-blue-700 hover:text-white"
