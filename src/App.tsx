@@ -8,7 +8,12 @@ import {
 import { useSelector } from "react-redux";
 
 import Home from "./pages/home";
+<<<<<<< HEAD
 import Header from "./layouts/header";
+=======
+import Chat from "./pages/chat";
+// import Header from "./layouts/header";
+>>>>>>> 67df94783dfd3289d16d35e3269bd0c6a13c6787
 import Footer from "./layouts/footer";
 import LoginRegister from "./pages/login-register";
 import { Toaster } from "./components/ui/toaster";
@@ -123,7 +128,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="App">
-        <Header />
+
         <div className="flex flex-1 w-full">
           <Leftbar joinedServers={joinedServers} />
           <Routes>

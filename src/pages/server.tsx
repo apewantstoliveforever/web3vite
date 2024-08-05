@@ -2,6 +2,7 @@ import ChatServer from "@/components/chat-server/chat-server";
 import VideoCallServer from "@/components/chat-server/video-call-server";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { WechatOutlined, VideoCameraOutlined } from '@ant-design/icons';
 
 const Server = () => {
   const [isMobileView, setIsMobileView] = useState<boolean>(
@@ -52,9 +53,12 @@ const Server = () => {
                 }
               }}
             >
-              {channel}
+          {channel === "channel-messages" ? <WechatOutlined className="mr-8 text-2xl" /> : <VideoCameraOutlined className="mr-8 text-2xl" />}
+          {channel}
             </li>
+
           ))}
+
         </ul>
       </div>
       <div
