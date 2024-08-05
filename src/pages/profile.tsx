@@ -187,55 +187,54 @@ const Profile: React.FC = () => {
   };
 
   const renderSection = (type: string, items: Item[]) => (
-<div className="mb-8">
-  <div className="text-xl font-semibold mb-4">
-    {type.charAt(0).toUpperCase() + type.slice(1)}
-  </div>
-  <div className="flex overflow-x-auto pb-4 hide-scrollbar">
-    {items.map((item) => (
-      <Card key={item.id} className="w-40 sm:w-60 flex-shrink-0 relative">
-        <CardHeader>
-          {type === "songs" && item.url ? (
-            <AudioPlayer url={item.url} />
-          ) : type === "books" && item.url ? (
-            <>
-              {item.url && (
-                <div onClick={() => handleChooseBook(item.url)}>
-                  <img
-                    src={`https://covers.openlibrary.org/b/id/${item.url.cover}-M.jpg`}
-                    alt={`Book cover ${item.id}`}
-                    className="w-full h-32 sm:h-40 object-cover"
-                  />
-                </div>
+    <div className="mb-2">
+      <div className="text-xl font-semibold mb-2">
+        {type.charAt(0).toUpperCase() + type.slice(1)}
+      </div>
+      <div className="flex overflow-x-auto hide-scrollbar">
+        {items.map((item) => (
+          <Card key={item.id} className="w-40 sm:w-60 flex-shrink-0 relative">
+            <CardHeader>
+              {type === "songs" && item.url ? (
+                <AudioPlayer url={item.url} />
+              ) : type === "books" && item.url ? (
+                <>
+                  {item.url && (
+                    <div onClick={() => handleChooseBook(item.url)}>
+                      <img
+                        src={`https://covers.openlibrary.org/b/id/${item.url.cover}-M.jpg`}
+                        alt={`Book cover ${item.id}`}
+                        className="w-full h-32 sm:h-40 object-cover"
+                      />
+                    </div>
+                  )}
+                </>
+              ) : type === "videos" && item.url ? (
+                <VideoPlayer url={item.url} />
+              ) : (
+                <img
+                  src={item.url || "https://via.placeholder.com/400"}
+                  alt={`${type.slice(0, -1)} ${item.id}`}
+                  className="w-full h-32 sm:h-40 object-cover"
+                />
               )}
-            </>
-          ) : type === "videos" && item.url ? (
-            <VideoPlayer url={item.url} />
-          ) : (
-            <img
-              src={item.url || "https://via.placeholder.com/400"}
-              alt={`${type.slice(0, -1)} ${item.id}`}
-              className="w-full h-32 sm:h-40 object-cover"
-            />
-          )}
-        </CardHeader>
-        <CardContent>
-          <Button
-            className="absolute bottom-2 right-2 w-8 h-8 p-1"
-            onClick={() => handleEdit(type, item.id)}
-          >
-            <UploadOutlined className="text-sm" />
-          </Button>
-        </CardContent>
-      </Card>
-    ))}
-  </div>
-</div>
-
+            </CardHeader>
+            <CardContent>
+              <Button
+                className="absolute bottom-2 right-2 w-8 h-8 p-1"
+                onClick={() => handleEdit(type, item.id)}
+              >
+                <UploadOutlined className="text-sm" />
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 
   return (
-    <div className="container mx-auto p-4 w-full">
+    <div className="container mx-auto p-2 w-full">
       {renderSection("images", images)}
       {renderSection("books", books)}
       {renderSection("songs", songs)}

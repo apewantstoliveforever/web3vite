@@ -1,28 +1,34 @@
-//page server
-
 import ChatServer from "@/components/chat-server/chat-server";
 import VideoCallServer from "@/components/chat-server/video-call-server";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+
 const Server = () => {
   const [isMobileView, setIsMobileView] = useState<boolean>(
     window.innerWidth < 768
   );
   const [showChatBox, setShowChatBox] = useState<boolean>(false);
-  const [selectedChannel, setSelectedChannel] = useState<string | null>(
-    "channel messages"
-  );
+  const [selectedChannel, setSelectedChannel] = useState<string | null>("channel-messages");
 
-  //get :id from url
+  // Get :id from URL
   const { id } = useParams<{ id: string }>();
 
   const channelList = ["channel-messages", "video-call-channel"];
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
-    <div
-      className={`flex h-screen ${
-        isMobileView ? "flex-col" : "flex-row"
-      } w-full`}
-    >
+    <div className={`flex h-screen ${isMobileView ? "flex-col" : "flex-row"} w-full`}>
       <div
         className={`${isMobileView && showChatBox ? "hidden" : ""} ${
           isMobileView
@@ -30,20 +36,26 @@ const Server = () => {
             : "w-1/4 bg-gray-200"
         }`}
       >
-        {channelList.map((channel) => (
-          <div
-            key={channel}
-            className="p-2 hover:bg-gray-300 cursor-pointer"
-            onClick={() => {
-              setSelectedChannel(channel);
-              if (isMobileView) {
-                setShowChatBox(true);
-              }
-            }}
-          >
-            {channel}
-          </div>
-        ))}
+        <ul className="list-none p-0 m-0">
+          {channelList.map((channel) => (
+            <li
+              key={channel}
+              className={`p-3 cursor-pointer rounded-md transition-colors duration-300 ${
+                selectedChannel === channel
+                  ? "bg-blue-500 text-white font-semibold"
+                  : "hover:bg-gray-300 text-gray-700"
+              }`}
+              onClick={() => {
+                setSelectedChannel(channel);
+                if (isMobileView) {
+                  setShowChatBox(true);
+                }
+              }}
+            >
+              {channel}
+            </li>
+          ))}
+        </ul>
       </div>
       <div
         className={`transition-transform ${
@@ -64,7 +76,6 @@ const Server = () => {
               selectedChannel={selectedChannel}
               serverName={id}
               onBack={() => {
-                // setSelectedChannel(null);
                 if (isMobileView) {
                   setShowChatBox(false);
                 }
@@ -75,7 +86,6 @@ const Server = () => {
               selectedChannel={selectedChannel}
               serverName={id}
               onBack={() => {
-                // setSelectedChannel(null);
                 if (isMobileView) {
                   setShowChatBox(false);
                 }
