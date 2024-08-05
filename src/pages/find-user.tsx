@@ -16,6 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ArchiveBookSearch from "@/components/archive-book-search";
+import { Book, Video, Image, Music } from "lucide-react";
 
 interface Item {
   id: number;
@@ -63,6 +64,8 @@ const FindUser: React.FC = () => {
   const [songs, setSongs] = useState<Item[]>([]);
   const [videos, setVideos] = useState<Item[]>([]);
 
+  const [found, setFound] = useState<boolean>(false);
+
   const [status, setStatus] = useState<string>("");
   const [avatar, setAvatar] = useState<any>(null);
   const [chooseBook, setChooseBook] = useState<any>(null);
@@ -93,10 +96,6 @@ const FindUser: React.FC = () => {
   };
 
   const handleSearch = async () => {
-    //off the on last findUser
-    // db.get(`~@${findUser}`).off();
-    // console.log("Find user:", findUser);
-
     db.get(`~@${findUser}`).on((userData: any) => {
       const keys = Object.keys(userData["_"][">"]);
       const key = keys[0];
@@ -110,6 +109,7 @@ const FindUser: React.FC = () => {
       db.get(key)
         .get("favourites")
         .on((data: any) => {
+          setFound(true);
           const result = {
             images: "",
             books: "",
@@ -154,7 +154,6 @@ const FindUser: React.FC = () => {
     };
   }, [findUser]);
 
-
   const handleChooseBook = (book: any) => {
     setChooseBook(book);
     setIsDialogBookOpen(true);
@@ -162,12 +161,21 @@ const FindUser: React.FC = () => {
 
   const renderSection = (type: string, items: Item[]) => (
     <div>
-      <div className="text-xl font-semibold mb-4">
-        {type.charAt(0).toUpperCase() + type.slice(1)}
-      </div>{" "}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="text-xl font-semibold mb-2">
+        <div className="flex items-center mb-2 space-x-2">
+          {type === "images" && <Image className="w-6 h-6" />}
+          {type === "books" && <Book className="w-6 h-6" />}
+          {type === "songs" && <Music className="w-6 h-6" />}
+          {type === "videos" && <Video className="w-6 h-6" />}
+          <span className="text-xl font-semibold capitalize">{type}</span>
+        </div>
+      </div>
+      <div className="flex overflow-x-auto hide-scrollbar">
         {items.map((item) => (
-          <Card key={item.id}>
+          <Card
+            key={item.id}
+            className="w-40 sm:w-60 flex-shrink-0 relative mr-4"
+          >
             <CardHeader>
               {type === "songs" && item.url ? (
                 <AudioPlayer url={item.url} />
@@ -201,6 +209,16 @@ const FindUser: React.FC = () => {
 
   return (
     <div className="w-full flex flex-col md:flex-row overflow-scroll">
+      <div className="mb-4">
+        <Input
+          type="text"
+          value={findUser}
+          onChange={(e) => handleNewFindUser(e.target.value)}
+          placeholder="Search user"
+          className="mr-2"
+        />
+        <Button onClick={handleSearch}>Search</Button>
+      </div>
       <div className="w-full md:w-3/12 flex items-center justify-center overflow-scroll hide-scrollbar">
         {avatar && (
           <Avatar className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-300">
@@ -212,25 +230,17 @@ const FindUser: React.FC = () => {
           </Avatar>
         )}
         {status && <Card>{status}</Card>}
-        <div className="mb-4">
-          <Input
-            type="text"
-            value={findUser}
-            onChange={(e) => handleNewFindUser(e.target.value)}
-            placeholder="Search user"
-            className="mr-2"
-          />
-          <Button onClick={handleSearch}>Search</Button>
-        </div>
       </div>
-      <div className="w-full md:w-9/12 flex items-center justify-center overflow-scroll hide-scrollbar">
-        <div className="container mx-auto p-4 w-full">
-          {renderSection("images", images)}
-          {renderSection("books", books)}
-          {renderSection("songs", songs)}
-          {renderSection("videos", videos)}
+      {found && (
+        <div className="w-full md:w-9/12 flex items-center justify-center overflow-scroll hide-scrollbar">
+          <div className="container mx-auto p-4 w-full">
+            {renderSection("images", images)}
+            {renderSection("books", books)}
+            {renderSection("songs", songs)}
+            {renderSection("videos", videos)}
+          </div>
         </div>
-      </div>
+      )}
       {chooseBook && (
         <Dialog
           open={isDialogBookOpen}

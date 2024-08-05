@@ -155,7 +155,6 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
 
   return (
     <Card className="flex-1 bg-white shadow-md rounded-lg w-full h-full flex flex-col">
-        Video call
       <CardHeader className="flex items-center justify-between border-b border-gray-200 pb-4 mb-4 flex-row">
         <Button
           onClick={onBack}

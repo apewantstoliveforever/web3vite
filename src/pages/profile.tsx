@@ -12,6 +12,7 @@ import { Document, Page } from "react-pdf";
 import EPUBJS from "epubjs";
 import BookSearch from "@/components/book-search";
 import ArchiveBookSearch from "@/components/archive-book-search";
+import { Book, Video, Image, Music } from "lucide-react";
 
 interface Item {
   id: number;
@@ -189,11 +190,17 @@ const Profile: React.FC = () => {
   const renderSection = (type: string, items: Item[]) => (
     <div className="mb-2">
       <div className="text-xl font-semibold mb-2">
-        {type.charAt(0).toUpperCase() + type.slice(1)}
+        <div className="flex items-center mb-2 space-x-2">
+          {type === "images" && <Image className="w-6 h-6" />}
+          {type === "books" && <Book className="w-6 h-6" />}
+          {type === "songs" && <Music className="w-6 h-6" />}
+          {type === "videos" && <Video className="w-6 h-6" />}
+          <span className="text-xl font-semibold capitalize">{type}</span>
+        </div>
       </div>
       <div className="flex overflow-x-auto hide-scrollbar">
         {items.map((item) => (
-          <Card key={item.id} className="w-40 sm:w-60 flex-shrink-0 relative">
+          <Card key={item.id} className="w-40 sm:w-60 flex-shrink-0 relative mr-4">
             <CardHeader>
               {type === "songs" && item.url ? (
                 <AudioPlayer url={item.url} />
