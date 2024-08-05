@@ -7,7 +7,6 @@ import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UploadOutlined } from "@ant-design/icons";
-import { throttle } from "lodash";
 import ReactPlayer from "react-player";
 import { Document, Page } from "react-pdf";
 import EPUBJS from "epubjs";
@@ -33,7 +32,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ url }) => {
       playing={false}
       controls={true}
       width="100%"
-      height={isVideoUrl ? "200px" : "50px"}
+      height={isVideoUrl ? "150px" : "40px"} // Adjusted for mobile view
       config={{
         file: {
           forceAudio: true, // Always render an <audio> element
@@ -52,7 +51,7 @@ const VideoPlayer: React.FC<{ url: string }> = ({ url }) => (
     playing={false}
     controls={true}
     width="100%"
-    height="200px"
+    height="150px" // Adjusted for mobile view
   />
 );
 
@@ -90,45 +89,40 @@ const Profile: React.FC = () => {
   const [isDialogBookOpen, setIsDialogBookOpen] = useState<boolean>(false);
 
   const fetchUserData = () => {
-    user.get("favourites").on(
-      ((data: any) => {
-        console.log("Favourites Dataw:", data);
-        if (data) {
-          setImages(
-            data.images
-              ? JSON.parse(data.images)
-              : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-          );
-          setBooks(
-            data.books
-              ? JSON.parse(data.books)
-              : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-          );
-          setSongs(
-            data.songs
-              ? JSON.parse(data.songs)
-              : Array.from({ length: 5 }, (_, id) => ({
-                  id,
-                  url: "",
-                  audioUrl: "",
-                }))
-          );
-          setVideos(
-            data.videos
-              ? JSON.parse(data.videos)
-              : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
-          );
-        }
-      })
-    );
-    // Throttle updates to once per second
+    user.get("favourites").on((data: any) => {
+      console.log("Favourites Data:", data);
+      if (data) {
+        setImages(
+          data.images
+            ? JSON.parse(data.images)
+            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+        );
+        setBooks(
+          data.books
+            ? JSON.parse(data.books)
+            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+        );
+        setSongs(
+          data.songs
+            ? JSON.parse(data.songs)
+            : Array.from({ length: 5 }, (_, id) => ({
+                id,
+                url: "",
+                audioUrl: "",
+              }))
+        );
+        setVideos(
+          data.videos
+            ? JSON.parse(data.videos)
+            : Array.from({ length: 5 }, (_, id) => ({ id, url: "" }))
+        );
+      }
+    });
   };
 
   useEffect(() => {
     if (user.is) {
-      // user.get("alias").once(() => {
-        fetchUserData();
-      // });
+      fetchUserData();
     } else if (username && password) {
       user.auth(username, password, (ack: any) => {
         if (ack.err) {
@@ -165,8 +159,6 @@ const Profile: React.FC = () => {
         videos: setVideos,
       }[type];
 
-      console.log("Type:", type, newUrl);
-
       const items =
         {
           images,
@@ -190,62 +182,60 @@ const Profile: React.FC = () => {
   };
 
   const handleChooseBook = (book: any) => {
-    console.log("Choose book:", book);
     setChooseBook(book);
     setIsDialogBookOpen(true);
   };
 
   const renderSection = (type: string, items: Item[]) => (
-    <div>
-      <div className="text-xl font-semibold mb-4">
-        {type.charAt(0).toUpperCase() + type.slice(1)}
-      </div>
-      <div className="grid grid-cols-5 gap-4">
-        {items.map((item) => (
-          <Card key={item.id}>
-            <CardHeader>
-              {type === "songs" && item.url ? (
-                <AudioPlayer url={item.url} />
-              ) : type === "books" && item.url ? (
-                <>
-                  {item.url && (
-                    <div onClick={() => handleChooseBook(item.url)}>
-                      <img
-                        src={`https://covers.openlibrary.org/b/id/${item.url.cover}-M.jpg`}
-                        alt={`Book cover ${item.id}`}
-                        className="w-200 h-200 object-cover"
-                      />
-                    </div>
-                  )}
-                </>
-              ) : type === "videos" && item.url ? (
-                <VideoPlayer url={item.url} />
-              ) : (
-                <img
-                  src={item.url || "https://via.placeholder.com/400"}
-                  alt={`${type.slice(0, -1)} ${item.id}`}
-                  className="w-200 h-200 object-cover"
-                />
+<div className="mb-8">
+  <div className="text-xl font-semibold mb-4">
+    {type.charAt(0).toUpperCase() + type.slice(1)}
+  </div>
+  <div className="flex overflow-x-auto pb-4 hide-scrollbar">
+    {items.map((item) => (
+      <Card key={item.id} className="w-40 sm:w-60 flex-shrink-0 relative">
+        <CardHeader>
+          {type === "songs" && item.url ? (
+            <AudioPlayer url={item.url} />
+          ) : type === "books" && item.url ? (
+            <>
+              {item.url && (
+                <div onClick={() => handleChooseBook(item.url)}>
+                  <img
+                    src={`https://covers.openlibrary.org/b/id/${item.url.cover}-M.jpg`}
+                    alt={`Book cover ${item.id}`}
+                    className="w-full h-32 sm:h-40 object-cover"
+                  />
+                </div>
               )}
-            </CardHeader>
-            <CardContent>
-              <Button
-                className="w-16"
-                onClick={() => handleEdit(type, item.id)}
-              >
-                <UploadOutlined />
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+            </>
+          ) : type === "videos" && item.url ? (
+            <VideoPlayer url={item.url} />
+          ) : (
+            <img
+              src={item.url || "https://via.placeholder.com/400"}
+              alt={`${type.slice(0, -1)} ${item.id}`}
+              className="w-full h-32 sm:h-40 object-cover"
+            />
+          )}
+        </CardHeader>
+        <CardContent>
+          <Button
+            className="absolute bottom-2 right-2 w-8 h-8 p-1"
+            onClick={() => handleEdit(type, item.id)}
+          >
+            <UploadOutlined className="text-sm" />
+          </Button>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+</div>
+
   );
 
   return (
-    <div className="container mx-auto p-4">
-      {/* <h1 className="text-4xl font-bold mb-8">Profile: {username}</h1> */}
-
+    <div className="container mx-auto p-4 w-full">
       {renderSection("images", images)}
       {renderSection("books", books)}
       {renderSection("songs", songs)}

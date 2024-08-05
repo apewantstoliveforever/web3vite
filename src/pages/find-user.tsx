@@ -12,6 +12,10 @@ import EPUBJS from "epubjs";
 import { fetchUserFavorites } from "@/services/get-user-data.service";
 import { db, sea } from "@/services/gun";
 import iris from "iris-lib";
+import { v4 as uuidv4 } from "uuid";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import ArchiveBookSearch from "@/components/archive-book-search";
 
 interface Item {
   id: number;
@@ -59,16 +63,10 @@ const FindUser: React.FC = () => {
   const [songs, setSongs] = useState<Item[]>([]);
   const [videos, setVideos] = useState<Item[]>([]);
 
+  const [status, setStatus] = useState<string>("");
   const [avatar, setAvatar] = useState<any>(null);
-
-  useEffect(() => {
-    user
-      .get("profile")
-      .get("avatar")
-      .on((avatar: any) => {
-        setAvatar(avatar);
-      });
-  }, []);
+  const [chooseBook, setChooseBook] = useState<any>(null);
+  const [isDialogBookOpen, setIsDialogBookOpen] = useState<boolean>(false);
 
   const dispatch = useDispatch();
   const username = useSelector((state: RootState) => state.auth.username);
@@ -104,10 +102,9 @@ const FindUser: React.FC = () => {
       const key = keys[0];
       db.get(key)
         .get("profile")
-        .get("avatar")
         .on((data: any) => {
-          setAvatar(data);
-          // console.log(data);
+          setAvatar(data.avatar);
+          setStatus(data.status);
         });
 
       db.get(key)
@@ -157,41 +154,10 @@ const FindUser: React.FC = () => {
     };
   }, [findUser]);
 
-  const handleAddFriend = async () => {
-    console.log("Add friend:", findUser);
-    db.get(`~@${findUser}`).on(async (userData: any) => {
-      const keys = Object.keys(userData["_"][">"]);
-      const key = keys[0].slice(1);
-      //remove first character of key
-      console.log("Key:", key);
-      console.log("Username:", findUser);
-      //check if friend request already sent
-      db.get(`friend-requestsa12-${findUser}`).set({ from_user: username, from: key, status: "pending", is_read: false });
-      console.log("Friend request sent");
-    });
 
-  };
-
-  const AliceAddTest1 = async () => {
-    // Generate keys for the participants
-    const Alice = await sea.pair(); // Alice, she decides to host this collection of links
-    const Bob = await sea.pair(); // Bob joins her initiative
-
-    // Begin with a list of verified users' public keys
-    const users = [Alice.pub, Bob.pub];
-
-    // Generate a new key pair for the room
-    const room = await sea.pair();
-
-    // Authenticate with the room key pair to set it up
-    db.user().auth(room, async () => {
-      let enc = await sea.encrypt(room, Alice);
-      db.user().get("host").get(Alice.pub).put(enc);
-      users.forEach(async (pub) => {
-        const cert = await sea.certify(pub, { "*": "#links", "+": "*" }, room);
-        db.user().get("certs").get("links").get(pub).put(cert);
-      });
-    });
+  const handleChooseBook = (book: any) => {
+    setChooseBook(book);
+    setIsDialogBookOpen(true);
   };
 
   const renderSection = (type: string, items: Item[]) => (
@@ -208,7 +174,7 @@ const FindUser: React.FC = () => {
               ) : type === "books" && item.url ? (
                 <>
                   {item.url && (
-                    <div>
+                    <div onClick={() => handleChooseBook(item.url)}>
                       <img
                         src={`https://covers.openlibrary.org/b/id/${item.url.cover}-M.jpg`}
                         alt={`Book cover ${item.id}`}
@@ -234,27 +200,47 @@ const FindUser: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto p-4">
-      <img src={avatar} />
-
-      <h1 className="text-4xl font-bold mb-8">Find User</h1>
-      <div className="mb-4">
-        <Input
-          type="text"
-          value={findUser}
-          onChange={(e) => handleNewFindUser(e.target.value)}
-          placeholder="Search user"
-          className="mr-2"
-        />
-        <Button onClick={handleSearch}>Search</Button>
+    <div className="w-full flex flex-col md:flex-row overflow-scroll">
+      <div className="w-full md:w-3/12 flex items-center justify-center overflow-scroll hide-scrollbar">
+        {avatar && (
+          <Avatar className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-300">
+            <AvatarImage
+              className="w-full h-full object-cover cursor-pointer"
+              src={avatar || "/profile_default.png"}
+            />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+        )}
+        {status && <Card>{status}</Card>}
+        <div className="mb-4">
+          <Input
+            type="text"
+            value={findUser}
+            onChange={(e) => handleNewFindUser(e.target.value)}
+            placeholder="Search user"
+            className="mr-2"
+          />
+          <Button onClick={handleSearch}>Search</Button>
+        </div>
       </div>
-      <Button onClick={handleAddFriend}>Add Friend</Button>
-      <Button onClick={AliceAddTest1}>Alice Add Test1</Button>
-
-      {renderSection("images", images)}
-      {renderSection("books", books)}
-      {renderSection("songs", songs)}
-      {renderSection("videos", videos)}
+      <div className="w-full md:w-9/12 flex items-center justify-center overflow-scroll hide-scrollbar">
+        <div className="container mx-auto p-4 w-full">
+          {renderSection("images", images)}
+          {renderSection("books", books)}
+          {renderSection("songs", songs)}
+          {renderSection("videos", videos)}
+        </div>
+      </div>
+      {chooseBook && (
+        <Dialog
+          open={isDialogBookOpen}
+          onOpenChange={() => setIsDialogBookOpen(false)}
+        >
+          <DialogContent className="bg-white p-8 rounded-xl shadow-2xl max-w-5xl mx-auto">
+            <ArchiveBookSearch chooseBook={chooseBook} />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

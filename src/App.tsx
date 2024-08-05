@@ -28,9 +28,9 @@ import Leftbar from "./layouts/left-bar";
 import { useDispatch } from "react-redux";
 
 import { db, sea, user } from "./services/gun";
-import FriendList from "./pages/friend-list";
 import Server from "./pages/server";
 import Rightbar from "./layouts/right-bar";
+import Map from "./pages/map";
 
 // AuthRoute component
 const AuthRoute: React.FC<{
@@ -46,7 +46,11 @@ const AuthRoute: React.FC<{
   }
 
   if (!isProtected && isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return (
+      <div className="flex h-screen flex-col w-full">
+        <Navigate to="/" replace />;
+      </div>
+    );
   }
 
   return <>{children}</>;
@@ -56,18 +60,15 @@ const AuthRoute: React.FC<{
 const routes = [
   { path: "/", element: <Home />, isProtected: true },
   { path: "/profile", element: <Profile />, isProtected: true },
-  { path: "/friend-list", element: <FriendList />, isProtected: true },
   { path: "/find-user", element: <FindUser />, isProtected: true },
-  { path: "/chat", element: <Chat />, isProtected: true },
-  { path: "/chat1", element: <Chat />, isProtected: true },
-  { path: "/chat2", element: <Chat />, isProtected: true },
-  { path: "/chat3", element: <Chat />, isProtected: true },
+  // { path: "/chat", element: <Chat />, isProtected: true },
   { path: "/test", element: <Test />, isProtected: true },
   { path: "/test-peer", element: <TestSimplePeer />, isProtected: true },
   { path: "/test-peer-new", element: <TestNewPeer />, isProtected: true },
   { path: "/test-song", element: <TestSong />, isProtected: true },
   { path: "/login", element: <LoginRegister />, isProtected: false },
   { path: "/server/:id", element: <Server />, isProtected: true },
+  { path: "/map", element: <Map />, isProtected: true },
 ];
 
 const App: React.FC = () => {
@@ -133,25 +134,23 @@ const App: React.FC = () => {
     <Router>
       <div className="App">
         <Header />
-        <div className="flex flex-1">
+        <div className="flex flex-1 w-full">
           <Leftbar joinedServers={joinedServers} />
-          <div className="flex-1">
-            <Routes>
-              {routes.map(({ path, element, isProtected }) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={
-                    <AuthRoute isProtected={isProtected}>{element}</AuthRoute>
-                  }
-                />
-              ))}
-            </Routes>
-          </div>
+          <Routes>
+            {routes.map(({ path, element, isProtected }) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <AuthRoute isProtected={isProtected}>{element}</AuthRoute>
+                }
+              />
+            ))}
+          </Routes>
           {/* <Rightbar /> */}
         </div>
         <Toaster />
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </Router>
   );
