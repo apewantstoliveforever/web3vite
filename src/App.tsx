@@ -8,12 +8,8 @@ import {
 import { useSelector } from "react-redux";
 
 import Home from "./pages/home";
-import Chat from "./pages/chat";
 import Header from "./layouts/header";
 import Footer from "./layouts/footer";
-import Test from "./pages/test";
-import TestSimplePeer from "./pages/test-simple-peer";
-import TestNewPeer from "./pages/test-new-peer";
 import LoginRegister from "./pages/login-register";
 import { Toaster } from "./components/ui/toaster";
 import { RootState } from "./auth/store";
@@ -21,7 +17,6 @@ import { RootState } from "./auth/store";
 import "./App.css";
 import Profile from "./pages/profile";
 import FindUser from "./pages/find-user";
-import TestSong from "./pages/test-song";
 import Leftbar from "./layouts/left-bar";
 
 //import dispatch to get friend request from redux
@@ -61,11 +56,6 @@ const routes = [
   { path: "/", element: <Home />, isProtected: true },
   { path: "/profile", element: <Profile />, isProtected: true },
   { path: "/find-user", element: <FindUser />, isProtected: true },
-  // { path: "/chat", element: <Chat />, isProtected: true },
-  { path: "/test", element: <Test />, isProtected: true },
-  { path: "/test-peer", element: <TestSimplePeer />, isProtected: true },
-  { path: "/test-peer-new", element: <TestNewPeer />, isProtected: true },
-  { path: "/test-song", element: <TestSong />, isProtected: true },
   { path: "/login", element: <LoginRegister />, isProtected: false },
   { path: "/server/:id", element: <Server />, isProtected: true },
   { path: "/map", element: <Map />, isProtected: true },

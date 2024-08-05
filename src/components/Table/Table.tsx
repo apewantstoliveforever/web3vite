@@ -6,42 +6,43 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+// Define the type for the array items
+interface Invoice {
+  img: string;
+  invoice: string;
+  author: string;
+}
 
-export function TableDemo( {array, name} ) {
+// Define the type for the props
+interface TableDemoProps {
+  array: Invoice[];
+  name: string;
+}
+
+export function TableDemo({ array, name }: TableDemoProps) {
   return (
     <Table className="">
       {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
       <TableHeader>
         <TableRow>
-          <TableHead className="text-center text-lg" >{name}</TableHead>
-
+          <TableHead className="text-center text-lg">{name}</TableHead>
         </TableRow>
       </TableHeader>
 
       {/* <TableBody> */}
         {array.map((invoice) => (
-          // <TableRow key={invoice.invoice}>
+          <TableRow key={invoice.invoice}>
             <TableCell>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <img style={{ width: "240px", height: "120px",borderRadius: "10px" }} src={invoice.img} />
+                <img style={{ width: "240px", height: "120px", borderRadius: "10px" }} src={invoice.img} alt={invoice.invoice} />
                 <p className="text-xl">{invoice.invoice}</p>
-                <p className="">{invoice.author}</p>
+                <p>{invoice.author}</p>
               </div>
             </TableCell>
-          // </TableRow>
+          </TableRow>
         ))}
-      {/* </TableBody> */}
-      {/* <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
-        </TableRow>
-      </TableFooter> */}
     </Table>
   )
 }
 
 export default TableDemo
-
-
-

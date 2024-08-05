@@ -18,7 +18,7 @@ interface ApiResponse {
 }
 
 interface ArchiveBookSearchProps {
-  chooseBook: any;
+  chooseBook: { title?: string } | null; // Ensure this matches the actual prop structure
 }
 
 const ArchiveBookSearch: React.FC<ArchiveBookSearchProps> = ({
@@ -37,7 +37,7 @@ const ArchiveBookSearch: React.FC<ArchiveBookSearchProps> = ({
   }, [chooseBook]);
 
   const handleSearch = async () => {
-    if (!chooseBook) return;
+    if (!chooseBook || !chooseBook.title) return;
     setLoading(true);
     setError("");
     try {
@@ -90,11 +90,7 @@ const ArchiveBookSearch: React.FC<ArchiveBookSearchProps> = ({
             {results.map((book) => (
               <div
                 key={book.identifier}
-                className={`border-b last:border-b-0 p-2 flex items-start space-x-4 cursor-pointer ${
-                  selectedBook?.identifier === book.identifier
-                    ? "bg-blue-100"
-                    : "hover:bg-gray-100"
-                }`}
+                className={`border-b last:border-b-0 p-2 flex items-start space-x-4 cursor-pointer`}
                 onClick={() => handleSelectBook(book)}
               >
                 <div>

@@ -16,7 +16,7 @@ import { db, user } from "@/services/gun";
 import imageCompression from "browser-image-compression";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { v4 as uuidv4 } from 'uuid';
-import VideoStream from "../chat/video-stream";
+// import VideoStream from "../chat/video-stream";
 
 interface Message {
   // id: string;
@@ -168,7 +168,7 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
       <CardContent className="flex-1 flex flex-col overflow-hidden relative">
         {localStream && (
           <div className="absolute bottom-4 right-4 w-100 h-100">
-            <VideoStream stream={localStream} onStop={handleStopSharing} />
+            {/* <VideoStream stream={localStream} onStop={handleStopSharing} /> */}
           </div>
         )}
         {/* Ô nhập tin nhắn và nút gửi */}
