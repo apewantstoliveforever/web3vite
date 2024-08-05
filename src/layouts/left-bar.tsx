@@ -28,6 +28,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"; // Adjust the import p
 
 
 import imgLog from '../assets/discord-round-black-icon.webp'
+import Header from "./header";
 interface Server {
   name: string;
   image: string;
@@ -107,7 +108,9 @@ const Leftbar: React.FC<LeftbarProps> = ({ joinedServers }) => {
             </Link>
           ))}
         </div>
+
       </ScrollArea>
+      <div><Header /></div>
     </div>
   );
 };

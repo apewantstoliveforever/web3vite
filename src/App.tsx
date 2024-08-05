@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 
 import Home from "./pages/home";
 import Chat from "./pages/chat";
-import Header from "./layouts/header";
+// import Header from "./layouts/header";
 import Footer from "./layouts/footer";
 import Test from "./pages/test";
 import TestSimplePeer from "./pages/test-simple-peer";
@@ -133,7 +133,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="App">
-        <Header />
+
         <div className="flex flex-1 w-full">
           <Leftbar joinedServers={joinedServers} />
           <Routes>

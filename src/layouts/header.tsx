@@ -18,19 +18,7 @@ const Header: React.FC = () => {
 
   return (
     <div>
-      <nav>
-        <ul className="flex items-center justify-between">
-          <li>
-            <a href="/">
-              <img
-                className="object-fill w-12 h-12"
-                src={imgLogo}
-                alt="Logo"
-              />
-            </a>
-          </li>
-          <li className="text-1xl">DISCORD WEB3</li>
-          <li className="text-1xl">
+      
                 <DropdownMenuCheckboxes2
                   name={username}
                   name2={"Trực tuyến"}
@@ -38,9 +26,7 @@ const Header: React.FC = () => {
                   name4={"Đăng xuất"}
 
                 />
-              </li>
-        </ul>
-      </nav>
+           
     </div>
   );
 };
