@@ -208,18 +208,20 @@ const FindUser: React.FC = () => {
   );
 
   return (
-    <div className="w-full flex flex-col md:flex-row overflow-scroll">
-      <div className="mb-4">
+    <div className="w-full h-screen flex flex-col md:flex-row overflow-scroll">
+      <div className="mb-4 flex flex-col md:flex-col items-center justify-center">
         <Input
           type="text"
           value={findUser}
           onChange={(e) => handleNewFindUser(e.target.value)}
           placeholder="Search user"
-          className="mr-2"
+          className="mr-2 mb-2 md:mb-0"
         />
-        <Button onClick={handleSearch}>Search</Button>
+        <Button onClick={handleSearch} className="ml-2">
+          Search
+        </Button>
       </div>
-      <div className="w-full md:w-3/12 flex items-center justify-center overflow-scroll hide-scrollbar">
+      <div className="w-full md:w-3/12 flex items-center justify-center">
         {avatar && (
           <Avatar className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-300">
             <AvatarImage
@@ -229,10 +231,10 @@ const FindUser: React.FC = () => {
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         )}
-        {status && <Card>{status}</Card>}
+        {status && <Card className="ml-4">{status}</Card>}
       </div>
       {found && (
-        <div className="w-full md:w-9/12 flex items-center justify-center overflow-scroll hide-scrollbar">
+      <div className="w-full  md:w-9/12 flex items-center justify-center">
           <div className="container mx-auto p-4 w-full">
             {renderSection("images", images)}
             {renderSection("books", books)}

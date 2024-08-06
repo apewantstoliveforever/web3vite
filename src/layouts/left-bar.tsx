@@ -26,8 +26,7 @@ import {
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area"; // Adjust the import path if necessary
 
-
-import imgLog from '../assets/discord-round-black-icon.webp'
+import imgLog from "../assets/discord-round-black-icon.webp";
 import Header from "./header";
 interface Server {
   name: string;
@@ -66,7 +65,7 @@ const Leftbar: React.FC<LeftbarProps> = ({ joinedServers }) => {
   }, [location.pathname]);
 
   return (
-    <div className="w-14 bg-gray-800 h-full border-r border-gray-700 flex flex-col">
+    <div className="w-14 bg-gray-800 h-screen border-r border-gray-700 flex flex-col">
       <div className="flex items-center justify-center mb-4">
         <div className="flex flex-col items-center justify-center p-2 ">
           <Link to="/" className="flex items-center justify-center">
@@ -76,22 +75,31 @@ const Leftbar: React.FC<LeftbarProps> = ({ joinedServers }) => {
               className="w-12 h-auto rounded-full"
             />
           </Link>
-          <Link to="/find-user" className="flex items-center space-x-2 p-2 rounded-lg">
+          <Link
+            to="/find-user"
+            className="flex items-center space-x-2 p-2 rounded-lg"
+          >
             <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-red-500 bg-white-100">
               <Search />
             </div>
           </Link>
-          <Link to="/map" className="flex items-center space-x-2 p-2 rounded-lg">
+          <Link
+            to="/map"
+            className="flex items-center space-x-2 p-2 rounded-lg"
+          >
             <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-red-500 bg-white-100">
               <MapPin />
             </div>
           </Link>
+          <div>
+            <Header />
+          </div>
         </div>
       </div>
 
       <ScrollArea className="h-[80vh] w-full border-t w-14">
         <div className="flex flex-col items-center justify-center p-2 w-14">
-        {joinedServers.map((server) => (
+          {joinedServers.map((server) => (
             <Link
               key={server.name}
               to={`/server/${server.name}`}
@@ -108,9 +116,7 @@ const Leftbar: React.FC<LeftbarProps> = ({ joinedServers }) => {
             </Link>
           ))}
         </div>
-
       </ScrollArea>
-      <div><Header /></div>
     </div>
   );
 };

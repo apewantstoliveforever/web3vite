@@ -51,10 +51,23 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
     peerInstance.on("call", (call) => {
       call.answer(localStream!);
       call.on("stream", (remoteStream) => {
-        setRemoteStreams((prevStreams) => [
-          ...prevStreams,
-          { stream: remoteStream, peerId: call.peer },
-        ]);
+        setRemoteStreams((prevStreams) => {
+          // Check if stream for this peerId already exists
+          const existingStreamIndex = prevStreams.findIndex(
+            (stream) => stream.peerId === call.peer
+          );
+          if (existingStreamIndex !== -1) {
+            // Replace the existing stream
+            const updatedStreams = [...prevStreams];
+            updatedStreams[existingStreamIndex] = {
+              stream: remoteStream,
+              peerId: call.peer,
+            };
+            return updatedStreams;
+          }
+          // Add new stream
+          return [...prevStreams, { stream: remoteStream, peerId: call.peer }];
+        });
       });
 
       call.on("close", () => {
@@ -120,21 +133,35 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
     // Track which peers we have already called
     const peersCalled = new Set<string>();
 
-    console.log("All peers:", allPeers);
-
     allPeers.forEach((peer) => {
       if (peer.peer_id === peerId || peersCalled.has(peer.peer_id)) return;
 
       // Mark this peer as called
-      peersCalled.add(peer);
+      peersCalled.add(peer.peer_id);
 
       const call = peerRef.current!.call(peer.peer_id, localStream);
 
       call.on("stream", (remoteStream) => {
-        setRemoteStreams((prevStreams) => [
-          ...prevStreams,
-          { stream: remoteStream, peerId: call.peer },
-        ]);
+        if (!remoteStream) {
+          setRemoteStreams((prevStreams) =>
+            prevStreams.filter((stream) => stream.peerId !== call.peer)
+          );
+          return;
+        }
+        setRemoteStreams((prevStreams) => {
+          const existingStreamIndex = prevStreams.findIndex(
+            (stream) => stream.peerId === call.peer
+          );
+          if (existingStreamIndex !== -1) {
+            const updatedStreams = [...prevStreams];
+            updatedStreams.splice(existingStreamIndex, 1, {
+              stream: remoteStream,
+              peerId: call.peer,
+            });
+            return updatedStreams;
+          }
+          return [...prevStreams, { stream: remoteStream, peerId: call.peer }];
+        });
       });
 
       call.on("close", () => {
@@ -144,8 +171,8 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
         );
       });
 
-      call.on("error", () => {
-        console.log("Error calling peer:", call.peer);
+      call.on("error", (error) => {
+        console.error("Error calling peer:", call.peer, error);
         setRemoteStreams((prevStreams) =>
           prevStreams.filter((stream) => stream.peerId !== call.peer)
         );
@@ -153,9 +180,29 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
     });
   }, [allPeers, localStream]);
 
+  useEffect(() => {
+    const handleOnlineStatus = () => {
+      if (!navigator.onLine) {
+        console.log("Lost connection");
+        handleStopSharing(); // Optionally stop sharing if disconnected
+      }
+    };
+
+    window.addEventListener('offline', handleOnlineStatus);
+    window.addEventListener('online', handleOnlineStatus);
+
+    return () => {
+      window.removeEventListener('offline', handleOnlineStatus);
+      window.removeEventListener('online', handleOnlineStatus);
+    };
+  }, []);
+
   const handleShareCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
       handleStream(stream);
     } catch (error) {
       console.error("Error accessing camera:", error);
@@ -186,7 +233,7 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
       setLocalStream(null);
     }
   };
-
+  
   return (
     <Card className="flex-1 bg-white shadow-md rounded-lg w-full h-full flex flex-col">
       <CardHeader className="flex items-center justify-between border-b border-gray-200 pb-4 mb-4 flex-row">
