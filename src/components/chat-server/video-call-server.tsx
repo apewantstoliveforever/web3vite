@@ -1,33 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import PropTypes from "prop-types";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
 import { ArrowLeft, Camera, Monitor } from "lucide-react";
-// import VideoStream from "./video-stream";
-
 import { useSelector } from "react-redux";
-import { db, user } from "@/services/gun";
-import imageCompression from "browser-image-compression";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { v4 as uuidv4 } from 'uuid';
-// import VideoStream from "../chat/video-stream";
-
-interface Message {
-  // id: string;
-  who: string;
-  what: string | null;
-  timestamp: number;
-  image: string | null; // Optional image field in base64
-  type: string | null; // Optional type field for notification messages
-  signal?: string;
-  id?: string;
-}
+import { db } from "@/services/gun";
+import Peer from "peerjs";
+import { v4 as uuidv4 } from "uuid";
 
 interface VideoCallServerProps {
   selectedChannel: string | null;
@@ -35,85 +13,145 @@ interface VideoCallServerProps {
   serverName: string;
 }
 
+const VideoStream: React.FC<{ stream: MediaStream }> = ({ stream }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
+
+  return <video ref={videoRef} autoPlay playsInline />;
+};
+
 const VideoCallServer: React.FC<VideoCallServerProps> = ({
   selectedChannel,
   onBack,
   serverName,
 }) => {
-  const [text, setText] = useState<string>("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [currentRoom, setCurrentRoom] = useState<string>("");
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStreams, setRemoteStreams] = useState<
+    { stream: MediaStream; peerId: string }[]
+  >([]);
   const username = useSelector((state: any) => state.auth.username);
-  const [image, setImage] = useState<File | null>(null); // For handling image uploads
-
-  const [acceptDialogOpen, setAcceptDialogOpen] = useState<boolean>(false);
-  const [signal, setSignal] = useState<string>("");
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesRef = useRef<any>(null);
-
-  const [otherUserAvatar, setOtherUserAvatar] = useState<string | null>(null);
+  const peerRef = useRef<Peer | null>(null);
+  const [peerId, setPeerId] = useState<string | null>(null);
+  const [allPeers, setAllPeers] = useState<any[]>([]);
 
   useEffect(() => {
-    setMessages([]);
-    setAcceptDialogOpen(false);
-    setSignal("");
+    // Connect to PeerJS server
+    const peerInstance = new Peer(uuidv4(), { debug: 3 });
+    peerRef.current = peerInstance;
+    peerInstance.on("open", (id) => {
+      console.log("Peer ID:", id);
+      setPeerId(id);
+    });
 
-    // Unsubscribe from previous messages
-    if (messagesRef.current) {
-      console.log("Unsubscribing from messages in room", currentRoom);
-      messagesRef.current.map().off();
-    }
-
-    console.log("Selected channel:", selectedChannel);
-    messagesRef.current = db
-      .get(serverName)
-      .get(`rooms/${selectedChannel}/messages1`);
-    const messagesSubscription = messagesRef.current
-      .map()
-      .on((message: any) => {
+    peerInstance.on("call", (call) => {
+      call.answer(localStream!);
+      call.on("stream", (remoteStream) => {
+        setRemoteStreams((prevStreams) => [
+          ...prevStreams,
+          { stream: remoteStream, peerId: call.peer },
+        ]);
       });
 
-    // Cleanup function to unsubscribe from user data and messages
-    return () => {
-      // userSubscription.off();
-      messagesSubscription.off();
-    };
-  }, [selectedChannel, currentRoom, serverName, username]);
+      call.on("close", () => {
+        setRemoteStreams((prevStreams) =>
+          prevStreams.filter((stream) => stream.peerId !== call.peer)
+        );
+      });
 
-  const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString();
-  };
-
-  const compressImage = async (image: File) => {
-    const options = {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 1024,
-      useWebWorker: true,
-    };
-
-    try {
-      return await imageCompression(image, options);
-    } catch (error) {
-      console.error("Error compressing image:", error);
-      return image; // Return the original image in case of error
-    }
-  };
-
-  const convertToBase64 = (image: File) => {
-    return new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        resolve(reader.result as string);
-      };
-      reader.onerror = (error) => {
-        reject(error);
-      };
-      reader.readAsDataURL(image);
+      call.on("error", () => {
+        setRemoteStreams((prevStreams) =>
+          prevStreams.filter((stream) => stream.peerId !== call.peer)
+        );
+      });
     });
-  };
+
+    return () => {
+      if (peerRef.current) {
+        peerRef.current.destroy();
+      }
+    };
+  }, [selectedChannel, serverName, username, localStream]);
+
+  useEffect(() => {
+    if (!peerId) return;
+
+    const videoCallRef = db
+      .get(serverName)
+      .get(`rooms/${selectedChannel}/video-call12`);
+
+    videoCallRef.once((data: any) => {
+      if (!data) {
+        videoCallRef.put(JSON.stringify([{ peer_id: peerId, username }]));
+        return;
+      }
+      const peers = JSON.parse(data);
+      console.log("Peers:", peers);
+
+      const index = peers.findIndex((peer: any) => peer.username === username);
+      if (index === -1) {
+        videoCallRef.put(
+          JSON.stringify([...peers, { peer_id: peerId, username }])
+        );
+      } else {
+        peers[index].peer_id = peerId;
+        peers[index].username = username;
+        videoCallRef.put(JSON.stringify(peers));
+      }
+    });
+
+    videoCallRef.on((data: any) => {
+      if (!data) return;
+      setAllPeers(JSON.parse(data));
+    });
+
+    return () => {
+      videoCallRef.off();
+    };
+  }, [peerId, selectedChannel, serverName, username]);
+
+  useEffect(() => {
+    if (!peerRef.current || !localStream) return;
+
+    // Track which peers we have already called
+    const peersCalled = new Set<string>();
+
+    console.log("All peers:", allPeers);
+
+    allPeers.forEach((peer) => {
+      if (peer.peer_id === peerId || peersCalled.has(peer.peer_id)) return;
+
+      // Mark this peer as called
+      peersCalled.add(peer);
+
+      const call = peerRef.current!.call(peer.peer_id, localStream);
+
+      call.on("stream", (remoteStream) => {
+        setRemoteStreams((prevStreams) => [
+          ...prevStreams,
+          { stream: remoteStream, peerId: call.peer },
+        ]);
+      });
+
+      call.on("close", () => {
+        console.log("Call closed by peer:", call.peer);
+        setRemoteStreams((prevStreams) =>
+          prevStreams.filter((stream) => stream.peerId !== call.peer)
+        );
+      });
+
+      call.on("error", () => {
+        console.log("Error calling peer:", call.peer);
+        setRemoteStreams((prevStreams) =>
+          prevStreams.filter((stream) => stream.peerId !== call.peer)
+        );
+      });
+    });
+  }, [allPeers, localStream]);
 
   const handleShareCamera = async () => {
     try {
@@ -138,12 +176,8 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
   const handleStream = (stream: MediaStream) => {
     setLocalStream(stream);
     stream.getTracks().forEach((track) => {
-      track.addEventListener("ended", () => {
-        handleStopSharing();
-      });
+      track.addEventListener("ended", handleStopSharing);
     });
-    // Here you would send the stream to the peer
-    console.log("Stream:", stream);
   };
 
   const handleStopSharing = () => {
@@ -167,11 +201,29 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
       </CardHeader>
       <CardContent className="flex-1 flex flex-col overflow-hidden relative">
         {localStream && (
-          <div className="absolute bottom-4 right-4 w-100 h-100">
-            {/* <VideoStream stream={localStream} onStop={handleStopSharing} /> */}
+          <div className="absolute bottom-4 right-4 w-1/4 h-1/4 border">
+            <VideoStream stream={localStream} />
           </div>
         )}
-        {/* Ô nhập tin nhắn và nút gửi */}
+        <div className="flex flex-wrap">
+          {remoteStreams.map(({ stream, peerId }) =>
+            stream ? (
+              <div
+                key={peerId}
+                className="w-1/3 h-1/3 border border-gray-300 p-2"
+              >
+                <VideoStream stream={stream} />
+                <div className="text-center mt-2">
+                  {
+                    allPeers.find((peer: any) => peer.peer_id === peerId)
+                      ?.username
+                  }
+                </div>
+              </div>
+            ) : null
+          )}
+        </div>
+
         <div className="border-t border-gray-200 pt-4">
           <div className="flex items-center mb-4">
             <Button
@@ -188,6 +240,16 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
             >
               <Monitor className="mr-2" /> Share Screen
             </Button>
+          </div>
+          <div className="flex flex-col">
+            {allPeers.map((peer: any, index: number) => (
+              <div key={index} className="flex items-center mb-2">
+                <span className="bg-blue-500 text-white p-2 rounded-full mr-2">
+                  {peer.username[0].toUpperCase()}
+                </span>
+                <span>{peer.username}</span>
+              </div>
+            ))}
           </div>
         </div>
       </CardContent>
