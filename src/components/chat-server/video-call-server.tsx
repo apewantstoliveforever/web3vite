@@ -278,14 +278,14 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
             <Camera className="mr-2" />
             Share Camera
           </Button>
-          <Button
+          {/* <Button
             onClick={handleShareScreen}
             variant="outline"
             className="text-blue-500 hover:bg-blue-100 flex items-center"
           >
             <Monitor className="mr-2" />
             Share Screen
-          </Button>
+          </Button> */}
         </div>
       </CardContent>
     </Card>
