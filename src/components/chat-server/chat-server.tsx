@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import { db } from "@/services/gun";
 import imageCompression from "browser-image-compression";
 import { v4 as uuidv4 } from "uuid";
+import { MessageOutlined } from '@ant-design/icons';
 
 interface Message {
   who: string;
@@ -42,6 +43,9 @@ const ChatServer: React.FC<ChatServerProps> = ({
   const [acceptDialogOpen, setAcceptDialogOpen] = useState<boolean>(false);
   const [signal, setSignal] = useState<string>("");
   const [otherUserAvatar, setOtherUserAvatar] = useState<string | null>(null);
+
+  const [isImageModalOpen, setIsImageModalOpen] = useState<boolean>(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<any>(null);
@@ -186,8 +190,18 @@ const ChatServer: React.FC<ChatServerProps> = ({
     }
   };
 
+  const openImageModal = (image: string) => {
+    setSelectedImage(image);
+    setIsImageModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
+    setIsImageModalOpen(false);
+  };
+
   return (
-    <Card className="flex-1 bg-white shadow-md rounded-lg w-full h-full flex flex-col">
+    <Card className="flex-1 bg-whiteshadow-md rounded-lg w-full h-full flex flex-col">
       <CardHeader className="flex items-center justify-between border-b border-gray-200 pb-4 mb-4 flex-row">
         <Button
           onClick={onBack}
@@ -196,7 +210,10 @@ const ChatServer: React.FC<ChatServerProps> = ({
         >
           <ArrowLeft className="mr-2" />
         </Button>
-        <h2 className="text-xl font-bold">{selectedChannel}</h2>
+        <div className="flex items-center space-x-2">
+          <MessageOutlined className="text-3xl" />
+          <h2 className="text-xl font-bold font-black">{selectedChannel}</h2>
+        </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col overflow-hidden relative w-full p-0">
         {localStream && (
@@ -207,23 +224,24 @@ const ChatServer: React.FC<ChatServerProps> = ({
         <div className="flex-1 overflow-y-auto space-y-4 h-[300px] w-full">
           {messages.map((msg) => (
             <div key={msg.id} className="flex items-start">
-              <Card className="flex flex-col items-start p-2">
+              <Card className="flex flex-col items-start bg-gray-300 w-auto h-auto">
                 <CardHeader className="flex flex-col items-start space-x-2">
-                  <CardTitle className="text-sm font-semibold text-left">
+                  <CardTitle className="text-sm font-semibold text-left font-bold">
                     {msg.who}
                   </CardTitle>
-                  <CardDescription className="text-left md:text-xs">
+                </CardHeader>
+                <CardContent className="text-left text-sm flex items-center">
+                  {msg.what}
+                  <CardDescription className="ml-4 text-left md:text-xs">
                     {formatTimestamp(msg.timestamp)}
                   </CardDescription>
-                </CardHeader>
-                <CardContent className="text-left text-sm">
-                  {msg.what}
                 </CardContent>
                 {msg.image && (
                   <img
                     src={msg.image}
                     alt="Uploaded"
-                    className="w-full h-auto max-w-xs max-h-64 mt-2 rounded-lg object-contain"
+                    className="w-full h-auto max-w-xs max-h-64 mt-2 rounded-lg object-contain cursor-pointer"
+                    onClick={() => openImageModal(msg.image)}
                   />
                 )}
               </Card>
@@ -250,7 +268,6 @@ const ChatServer: React.FC<ChatServerProps> = ({
                 onChange={handleSendImage}
               />
             </Button>
-
             <Button
               onClick={handleSendMessage}
               className="bg-blue-500 text-white hover:bg-blue-600"
@@ -260,8 +277,25 @@ const ChatServer: React.FC<ChatServerProps> = ({
           </div>
         </div>
       </CardContent>
+      {isImageModalOpen && selectedImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+          <div className="relative">
+            <img
+              src={selectedImage}
+              alt="Zoomed"
+              className="max-w-full max-h-full object-contain rounded-lg"
+            />
+            <button
+              onClick={closeImageModal}
+              className="absolute top-2 right-2 bg-white rounded-full p-2 text-black"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };
 
-export default ChatServer
+export default ChatServer;
