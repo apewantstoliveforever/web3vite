@@ -13,7 +13,10 @@ interface VideoCallServerProps {
   serverName: string;
 }
 
-const VideoStream: React.FC<{ stream: MediaStream }> = ({ stream }) => {
+const VideoStream: React.FC<{ stream: MediaStream; muted?: boolean }> = ({
+  stream,
+  muted = false,
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -22,7 +25,7 @@ const VideoStream: React.FC<{ stream: MediaStream }> = ({ stream }) => {
     }
   }, [stream]);
 
-  return <video ref={videoRef} autoPlay playsInline />;
+  return <video ref={videoRef} autoPlay playsInline muted={muted} />;
 };
 
 const VideoCallServer: React.FC<VideoCallServerProps> = ({
@@ -40,7 +43,6 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
   const [allPeers, setAllPeers] = useState<any[]>([]);
 
   useEffect(() => {
-    // Connect to PeerJS server
     const peerInstance = new Peer(uuidv4(), { debug: 3 });
     peerRef.current = peerInstance;
     peerInstance.on("open", (id) => {
@@ -52,12 +54,10 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
       call.answer(localStream!);
       call.on("stream", (remoteStream) => {
         setRemoteStreams((prevStreams) => {
-          // Check if stream for this peerId already exists
           const existingStreamIndex = prevStreams.findIndex(
             (stream) => stream.peerId === call.peer
           );
           if (existingStreamIndex !== -1) {
-            // Replace the existing stream
             const updatedStreams = [...prevStreams];
             updatedStreams[existingStreamIndex] = {
               stream: remoteStream,
@@ -65,7 +65,6 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
             };
             return updatedStreams;
           }
-          // Add new stream
           return [...prevStreams, { stream: remoteStream, peerId: call.peer }];
         });
       });
@@ -130,13 +129,11 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
   useEffect(() => {
     if (!peerRef.current || !localStream) return;
 
-    // Track which peers we have already called
     const peersCalled = new Set<string>();
 
     allPeers.forEach((peer) => {
       if (peer.peer_id === peerId || peersCalled.has(peer.peer_id)) return;
 
-      // Mark this peer as called
       peersCalled.add(peer.peer_id);
 
       const call = peerRef.current!.call(peer.peer_id, localStream);
@@ -184,16 +181,16 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
     const handleOnlineStatus = () => {
       if (!navigator.onLine) {
         console.log("Lost connection");
-        handleStopSharing(); // Optionally stop sharing if disconnected
+        handleStopSharing();
       }
     };
 
-    window.addEventListener('offline', handleOnlineStatus);
-    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener("offline", handleOnlineStatus);
+    window.addEventListener("online", handleOnlineStatus);
 
     return () => {
-      window.removeEventListener('offline', handleOnlineStatus);
-      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener("offline", handleOnlineStatus);
+      window.removeEventListener("online", handleOnlineStatus);
     };
   }, []);
 
@@ -213,6 +210,7 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
+        audio: true,
       });
       handleStream(stream);
     } catch (error) {
@@ -233,7 +231,7 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
       setLocalStream(null);
     }
   };
-  
+
   return (
     <Card className="flex-1 bg-white shadow-md rounded-lg w-full h-full flex flex-col">
       <CardHeader className="flex items-center justify-between border-b border-gray-200 pb-4 mb-4 flex-row">
@@ -249,7 +247,7 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
       <CardContent className="flex-1 flex flex-col overflow-hidden relative">
         {localStream && (
           <div className="absolute bottom-4 right-4 w-1/4 h-1/4 border">
-            <VideoStream stream={localStream} />
+            <VideoStream stream={localStream} muted />
           </div>
         )}
         <div className="flex flex-wrap">
@@ -272,32 +270,22 @@ const VideoCallServer: React.FC<VideoCallServerProps> = ({
         </div>
 
         <div className="border-t border-gray-200 pt-4">
-          <div className="flex items-center mb-4">
-            <Button
-              onClick={handleShareCamera}
-              className="bg-green-500 text-white hover:bg-green-600 mr-2"
-              disabled={!!localStream}
-            >
-              <Camera className="mr-2" /> Share Camera
-            </Button>
-            <Button
-              onClick={handleShareScreen}
-              className="bg-red-500 text-white hover:bg-red-600"
-              disabled={!!localStream}
-            >
-              <Monitor className="mr-2" /> Share Screen
-            </Button>
-          </div>
-          <div className="flex flex-col">
-            {allPeers.map((peer: any, index: number) => (
-              <div key={index} className="flex items-center mb-2">
-                <span className="bg-blue-500 text-white p-2 rounded-full mr-2">
-                  {peer.username[0].toUpperCase()}
-                </span>
-                <span>{peer.username}</span>
-              </div>
-            ))}
-          </div>
+          <Button
+            onClick={handleShareCamera}
+            variant="outline"
+            className="text-blue-500 hover:bg-blue-100 flex items-center mr-2"
+          >
+            <Camera className="mr-2" />
+            Share Camera
+          </Button>
+          <Button
+            onClick={handleShareScreen}
+            variant="outline"
+            className="text-blue-500 hover:bg-blue-100 flex items-center"
+          >
+            <Monitor className="mr-2" />
+            Share Screen
+          </Button>
         </div>
       </CardContent>
     </Card>

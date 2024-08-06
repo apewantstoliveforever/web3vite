@@ -10,19 +10,19 @@ const VideoStream: React.FC<VideoStreamProps> = ({ stream, onStop }) => {
 
   useEffect(() => {
     if (videoRef.current) {
-      //check if the stream is available
-      if (stream) videoRef.current.srcObject = stream;
-      else {
+      // Check if the stream is available
+      if (stream) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.muted = true; // Ensure the video is muted
+      } else {
         onStop();
       }
     }
-    else {
-    }
-  }, [stream]);
+  }, [stream, onStop]);
 
   return (
     <div className="relative">
-      <video ref={videoRef} autoPlay className="rounded-lg w-full h-full" />
+      <video ref={videoRef} autoPlay className="rounded-lg w-full h-full" muted />
       <button
         onClick={onStop}
         className="absolute top-2 right-2 bg-red-500 text-white rounded p-1"
