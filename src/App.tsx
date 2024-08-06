@@ -123,9 +123,9 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="App">
-
         <div className="flex flex-1 w-full">
           <Leftbar joinedServers={joinedServers} />
+
           <Routes>
             {routes.map(({ path, element, isProtected }) => (
               <Route

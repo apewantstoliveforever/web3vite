@@ -23,6 +23,7 @@ import {
   Edit,
   Trash,
   ContactRound,
+  Apple
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area"; // Adjust the import path if necessary
 
@@ -83,14 +84,14 @@ const Leftbar: React.FC<LeftbarProps> = ({ joinedServers }) => {
               <Search />
             </div>
           </Link>
-          <Link
+          {/* <Link
             to="/map"
             className="flex items-center space-x-2 p-2 rounded-lg"
           >
             <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-red-500 bg-white-100">
               <MapPin />
             </div>
-          </Link>
+          </Link> */}
           <div>
             <Header />
           </div>
@@ -111,7 +112,8 @@ const Leftbar: React.FC<LeftbarProps> = ({ joinedServers }) => {
               onClick={() => setActivePath(`/server/${server.name}`)}
             >
               <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 bg-white-100">
-                <img src={server.image} alt={server.name} className="w-8 h-8" />
+                {/* <img src={server.image} alt={server.name} className="w-8 h-8" /> */}
+                <Apple />
               </div>
             </Link>
           ))}

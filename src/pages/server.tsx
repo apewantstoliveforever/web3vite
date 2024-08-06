@@ -2,14 +2,16 @@ import ChatServer from "@/components/chat-server/chat-server";
 import VideoCallServer from "@/components/chat-server/video-call-server";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { WechatOutlined, VideoCameraOutlined } from '@ant-design/icons';
+import { WechatOutlined, VideoCameraOutlined } from "@ant-design/icons";
 
 const Server = () => {
   const [isMobileView, setIsMobileView] = useState<boolean>(
     window.innerWidth < 768
   );
   const [showChatBox, setShowChatBox] = useState<boolean>(false);
-  const [selectedChannel, setSelectedChannel] = useState<string | null>("channel-messages");
+  const [selectedChannel, setSelectedChannel] = useState<string | null>(
+    "channel-messages"
+  );
 
   // Get :id from URL
   const { id } = useParams<{ id: string }>();
@@ -29,12 +31,14 @@ const Server = () => {
   }, []);
 
   return (
-    <div className={`flex h-screen ${isMobileView ? "flex-col" : "flex-row"} w-full`}>
+    <div
+      className={`flex h-screen ${
+        isMobileView ? "flex-col" : "flex-row"
+      } w-full`}
+    >
       <div
         className={`${isMobileView && showChatBox ? "hidden" : ""} ${
-          isMobileView
-            ? "w-full top-0 left-0 h-full z-10 bg-gray-200"
-            : "w-1/4 bg-gray-200"
+          isMobileView ? "w-full top-0 left-0 h-full z-10 " : "w-1/4 "
         }`}
       >
         <ul className="list-none p-0 m-0">
@@ -53,12 +57,14 @@ const Server = () => {
                 }
               }}
             >
-          {channel === "channel-messages" ? <WechatOutlined className="mr-8 text-2xl" /> : <VideoCameraOutlined className="mr-8 text-2xl" />}
-          {channel}
+              {channel === "channel-messages" ? (
+                <WechatOutlined className="mr-8 text-2xl" />
+              ) : (
+                <VideoCameraOutlined className="mr-8 text-2xl" />
+              )}
+              {channel}
             </li>
-
           ))}
-
         </ul>
       </div>
       <div
